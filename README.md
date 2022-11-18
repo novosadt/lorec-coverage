@@ -1,2 +1,2 @@
-# om-ngs-coverage
-Optical mapping and Next Generation Coverage comparison tool
+# om-hts-coverage
+Optical Mapping and High-Through-Put (HTS) coverage comparison tool
