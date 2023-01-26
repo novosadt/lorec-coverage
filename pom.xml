@@ -9,6 +9,10 @@
     <description>Optical Mapping and High-Through-Put (HTS) coverage comparison tool</description>
     <version>1.0</version>
 
+    <properties>
+        <java.version>8</java.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>cz.vsb.genetics</groupId>
@@ -27,7 +31,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -36,8 +39,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
         </plugins>
