@@ -12,8 +12,20 @@ public class BionanoHtsCoverage {
     private static final String ARG_HTS_BAI = "hts_bai";
     private static final String ARG_THREADS = "threads";
     private static final String ARG_REGION = "region";
+    private static final String ARG_REGION_FILE = "region_file";
     private static final String ARG_OUTPUT_CSV = "output_csv";
     private static final String ARG_OUTPUT_IMG = "output_img";
+
+    private String xmap;
+    private String cmapQuery;
+    private String cmapReference;
+    private String bam;
+    private String bai;
+    private String region;
+    private String regionFile;
+    private String outputCsv;
+    private String outputImg;
+    private int threads = 1;
 
     public static void main(String[] args) {
 
@@ -22,37 +34,63 @@ public class BionanoHtsCoverage {
     private static CommandLine getCommandLine(String[] args) {
         Options options = new Options();
 
-        Option bionanoCmapQry = new Option("bcq", ARG_BIONANO_CMAP_QRY, true, "bionano cmap query file");
+        Option bionanoCmapQry = new Option("cmap_q", ARG_BIONANO_CMAP_QRY, true, "bionano cmap query file");
         bionanoCmapQry.setRequired(true);
         bionanoCmapQry.setArgName("cmap file");
         bionanoCmapQry.setType(String.class);
         options.addOption(bionanoCmapQry);
 
-        Option bionanoCmapRef = new Option("bcr", ARG_BIONANO_CMAP_REF, true, "bionano cmap reference file");
+        Option bionanoCmapRef = new Option("cmap_r", ARG_BIONANO_CMAP_REF, true, "bionano cmap reference file");
         bionanoCmapRef.setRequired(true);
         bionanoCmapRef.setArgName("cmap file");
         bionanoCmapRef.setType(String.class);
         options.addOption(bionanoCmapRef);
 
-        Option bionanoXmap = new Option("bx", ARG_BIONANO_XMAP, true, "bionano xmap file");
+        Option bionanoXmap = new Option("xmap", ARG_BIONANO_XMAP, true, "bionano xmap file");
         bionanoXmap.setRequired(true);
         bionanoXmap.setArgName("cmap file");
         bionanoXmap.setType(String.class);
         options.addOption(bionanoXmap);
 
+        Option htsBam = new Option("bam", ARG_HTS_BAM, true, "hts bam file");
+        htsBam.setRequired(true);
+        htsBam.setArgName("bam file");
+        htsBam.setType(String.class);
+        options.addOption(htsBam);
 
+        Option htsBai = new Option("bai", ARG_HTS_BAI, true, "hts bam index file");
+        htsBai.setRequired(true);
+        htsBai.setArgName("bai file");
+        htsBai.setType(String.class);
+        options.addOption(htsBai);
 
+        Option threads = new Option("t", ARG_THREADS, true, "number of threads for parallel processing");
+        threads.setRequired(false);
+        threads.setArgName("threads");
+        threads.setType(Integer.class);
+        options.addOption(threads);
 
+        Option region = new Option("r", ARG_REGION, true, "chromosomal region of interest (e.g. chr1:1-1000)");
+        region.setRequired(false);
+        region.setArgName("chromosomal region");
+        region.setType(String.class);
+        options.addOption(region);
 
-        Option outputCsv = new Option("ocsv", ARG_OUTPUT_CSV, true, "output result file - CSV");
+        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest (e.g. chr1:1-1000) - one per line");
+        regionFile.setRequired(false);
+        regionFile.setArgName("chromosomal regions file");
+        regionFile.setType(String.class);
+        options.addOption(regionFile);
+
+        Option outputCsv = new Option("csv", ARG_OUTPUT_CSV, true, "output result file - CSV");
         outputCsv.setRequired(true);
-        outputCsv.setArgName("csv file");
+        outputCsv.setArgName("output csv file");
         outputCsv.setType(String.class);
         options.addOption(outputCsv);
 
-        Option outputImg = new Option("oimg", ARG_OUTPUT_IMG, true, "output result file - Image");
+        Option outputImg = new Option("img", ARG_OUTPUT_IMG, true, "output result file - Image");
         outputImg.setRequired(true);
-        outputImg.setArgName("png file");
+        outputImg.setArgName("output png file");
         outputImg.setType(String.class);
         options.addOption(outputImg);
 
@@ -94,4 +132,6 @@ public class BionanoHtsCoverage {
 
         return properties.getProperty("version");
     }
+
+
 }
