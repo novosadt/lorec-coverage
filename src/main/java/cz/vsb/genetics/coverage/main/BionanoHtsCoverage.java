@@ -28,6 +28,15 @@ public class BionanoHtsCoverage {
     private int threads = 1;
 
     public static void main(String[] args) {
+        CommandLine cmd = getCommandLine(args);
+
+        String xmap = cmd.getOptionValue(ARG_BIONANO_XMAP);
+        String cmapQuery = cmd.getOptionValue(ARG_BIONANO_CMAP_QRY);
+        String cmapReference = cmd.getOptionValue(ARG_BIONANO_CMAP_REF);
+        String bam = cmd.getOptionValue(ARG_HTS_BAM);
+        String bai = cmd.getOptionValue(ARG_HTS_BAI);
+        int threads = cmd.hasOption(ARG_THREADS) ? Integer.valueOf(cmd.getOptionValue(ARG_THREADS)) : 1;
+        String region = cmd.getOptionValue(ARG_HTS_BAI);
 
     }
 
@@ -70,13 +79,13 @@ public class BionanoHtsCoverage {
         threads.setType(Integer.class);
         options.addOption(threads);
 
-        Option region = new Option("r", ARG_REGION, true, "chromosomal region of interest (e.g. chr1:1-1000)");
+        Option region = new Option("r", ARG_REGION, true, "chromosomal region of interest (e.g. chr1 or chr1:1-1000)");
         region.setRequired(false);
         region.setArgName("chromosomal region");
         region.setType(String.class);
         options.addOption(region);
 
-        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest (e.g. chr1:1-1000) - one per line");
+        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest (e.g. chr1 or chr1:1-1000) - one per line");
         regionFile.setRequired(false);
         regionFile.setArgName("chromosomal regions file");
         regionFile.setType(String.class);
