@@ -16,17 +16,6 @@ public class BionanoHtsCoverage {
     private static final String ARG_OUTPUT_CSV = "output_csv";
     private static final String ARG_OUTPUT_IMG = "output_img";
 
-    private String xmap;
-    private String cmapQuery;
-    private String cmapReference;
-    private String bam;
-    private String bai;
-    private String region;
-    private String regionFile;
-    private String outputCsv;
-    private String outputImg;
-    private int threads = 1;
-
     public static void main(String[] args) {
         CommandLine cmd = getCommandLine(args);
 
@@ -36,7 +25,10 @@ public class BionanoHtsCoverage {
         String bam = cmd.getOptionValue(ARG_HTS_BAM);
         String bai = cmd.getOptionValue(ARG_HTS_BAI);
         int threads = cmd.hasOption(ARG_THREADS) ? Integer.valueOf(cmd.getOptionValue(ARG_THREADS)) : 1;
-        String region = cmd.getOptionValue(ARG_HTS_BAI);
+        String region = cmd.hasOption(ARG_REGION) ? cmd.getOptionValue(ARG_REGION) : null;
+        String regionFile = cmd.hasOption(ARG_REGION_FILE) ? cmd.getOptionValue(ARG_REGION_FILE) : null;
+        String outputCsv = cmd.getOptionValue(ARG_OUTPUT_CSV);
+        String outputImg = cmd.getOptionValue(ARG_OUTPUT_IMG);
 
     }
 
