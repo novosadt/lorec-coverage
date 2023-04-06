@@ -29,18 +29,6 @@ public class CoveragePlot {
         ChartUtils.saveChartAsJPEG(lineChart , coverageChart, width ,height);
     }
 
-    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, int sampleSize, CoverageInfo... coverageInfos) throws Exception {
-        JFreeChart coverageChart = ChartFactory.createXYStepChart(title, xLabel, yLabel, createXYDataset(coverageInfos, sampleSize),
-                PlotOrientation.VERTICAL, true, true, false);
-
-        NumberAxis xAxis = new NumberAxis(xLabel);
-        xAxis.setRange(coverageInfos[0].getPositionStart(), coverageInfos[0].getPositionEnd());
-        coverageChart.getXYPlot().setDomainAxis(xAxis);
-
-        File lineChart = new File( outputFile);
-        ChartUtils.saveChartAsJPEG(lineChart , coverageChart, width ,height);
-    }
-
     public void setWidth(int width) {
         this.width = width;
     }
@@ -53,39 +41,30 @@ public class CoveragePlot {
         XYSeriesCollection dataset = new XYSeriesCollection();
 
         for (CoverageInfo coverageInfo : coverageInfos) {
-            XYSeries xySeries = new XYSeries(coverageInfo.getTitle());
+            if (coverageInfo == null)
+                continue;
 
+            XYSeries xySeries = new XYSeries(coverageInfo.getTitle());
             int[] coverage = coverageInfo.getCoverages();
 
-            for (int i = 0, j = coverageInfo.getPositionStart(); i < coverage.length; i++, j++)
-                xySeries.add(j, coverage[i]);
+            if (coverageInfo.getSamplingSize() == 0) {
+                for (int i = 0, j = coverageInfo.getPositionStart(); i < coverage.length; i++, j++)
+                    xySeries.add(j, coverage[i]);
+            }
+            else {
+                int sampleSize = coverageInfo.getSamplingSize() - 1;
+                Random random = new Random();
 
-            dataset.addSeries(xySeries);
-        }
+                for (int i = 0, j = coverageInfo.getPositionStart(); i < coverage.length; i += sampleSize, j += sampleSize) {
+                    int index = random.nextInt(sampleSize) + i;
 
-        return dataset;
-    }
+                    if (index >= coverage.length) {
+                        index = coverage.length - 1;
+                        j = coverageInfo.getPositionEnd();
+                    }
 
-    XYDataset createXYDataset(CoverageInfo[] coverageInfos, int sampleSize) {
-        XYSeriesCollection dataset = new XYSeriesCollection();
-
-        for (CoverageInfo coverageInfo : coverageInfos) {
-            XYSeries xySeries = new XYSeries(coverageInfo.getTitle());
-
-            int[] coverage = coverageInfo.getCoverages();
-            Random random = new Random();
-
-            sampleSize -= -1;
-
-            for (int i = 0, j = coverageInfo.getPositionStart(); i < coverage.length; i+= sampleSize, j+= sampleSize) {
-                int index = random.nextInt(sampleSize) + i;
-
-                if (index >= coverage.length) {
-                    index = coverage.length - 1;
-                    j = coverageInfo.getPositionEnd();
+                    xySeries.add(j, coverage[index]);
                 }
-
-                xySeries.add(j, coverage[index]);
             }
 
             dataset.addSeries(xySeries);
