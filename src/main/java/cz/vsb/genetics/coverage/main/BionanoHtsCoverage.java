@@ -21,6 +21,7 @@ public class BionanoHtsCoverage {
     private static final String ARG_REGION = "region";
     private static final String ARG_TITLE = "title";
     private static final String ARG_SINGLE_IMAGE = "single_image";
+    private static final String ARG_COVERAGE_LIMIT = "coverage_limit";
     private static final String ARG_OUTPUT_CSV = "output_csv";
     private static final String ARG_OUTPUT_HTS_IMG = "output_hts_img";
     private static final String ARG_OUTPUT_OM_IMG = "output_om_img";
@@ -46,6 +47,14 @@ public class BionanoHtsCoverage {
         try {
             CoverageInfo htsCoverage = getCoverageInfoHts(bam, bai, ChromosomeRegion.valueOf(region), outputHtsImg, threads);
             CoverageInfo omCoverage = getCoverageInfoOm(cmapReference, cmapQuery, xmap, ChromosomeRegion.valueOf(region), outputOmImg);
+
+            if (cmd.hasOption(ARG_COVERAGE_LIMIT)) {
+                int coverageLimit = Integer.valueOf(cmd.getOptionValue(ARG_COVERAGE_LIMIT));
+                if (htsCoverage != null)
+                    htsCoverage.setCoverageLimit(coverageLimit);
+                if (omCoverage != null)
+                    omCoverage.setCoverageLimit(coverageLimit);
+            }
 
             plotCoverage(htsCoverage, omCoverage, outputHtsImg, outputOmImg, outputImg, title, singleImage);
         }
@@ -89,6 +98,11 @@ public class BionanoHtsCoverage {
         threads.setType(Integer.class);
         options.addOption(threads);
 
+        Option coverageLimit = new Option("cl", ARG_COVERAGE_LIMIT, true, "Set coverage limit for plotting (maximum y axis value)");
+        coverageLimit.setArgName("coverage limit");
+        coverageLimit.setType(Integer.class);
+        options.addOption(coverageLimit);
+
         Option region = new Option("r", ARG_REGION, true, "chromosomal region of interest (e.g. chr1:1-1000)");
         region.setRequired(true);
         region.setArgName("chromosomal region");
@@ -102,7 +116,6 @@ public class BionanoHtsCoverage {
 
         Option singleImage = new Option("si", ARG_SINGLE_IMAGE, false, "whether to plot HTS and OM in single image");
         singleImage.setArgName("single image");
-        singleImage.setType(Boolean.class);
         options.addOption(singleImage);
 
         Option outputCsv = new Option("csv", ARG_OUTPUT_CSV, true, "output result file - CSV");
@@ -188,6 +201,7 @@ public class BionanoHtsCoverage {
             coverageCalculator.open();
 
             CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
+            coverageInfo.setSamplingSize(10);
             coverageInfo.setTitle("OM");
 
             return coverageInfo;

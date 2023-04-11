@@ -50,18 +50,16 @@ public class TestCoveragePlot {
 
     public static void main(String[] args) {
         try {
+
+
+            //TP53
 //            Chromosome chromosome = Chromosome.chr17;
-//
-//            //TP53
 //            int start = 7668421;
 //            int end = 7687490;
 
             Chromosome chromosome = Chromosome.chr21;
             int start = 1;
             int end = 46709983;
-
-//            int start = 16180000;
-//            int end = 16190000;
 
             //testBamCoverageAtIntervalST(chromosome, start, end);
             //testBamCoverageAtIntervalMT(chromosome, start, end, 6);
@@ -83,6 +81,7 @@ public class TestCoveragePlot {
         CoverageCalculator coverageCalculator = new BamCoverageCalculatorST(BAM_FILE, BAM_INDEX_FILE);
         coverageCalculator.open();
         CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(chromosome, start, end);
+        coverageInfo.setSamplingSize(100);
         coverageCalculator.close();
 
         stopWatch.stop();
@@ -101,6 +100,7 @@ public class TestCoveragePlot {
         CoverageCalculator coverageCalculator = new BamCoverageCalculatorMT(BAM_FILE, BAM_INDEX_FILE, threads);
         coverageCalculator.open();
         CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(chromosome, start, end);
+        coverageInfo.setSamplingSize(100);
         coverageCalculator.close();
 
         stopWatch.stop();
@@ -119,13 +119,14 @@ public class TestCoveragePlot {
         CoverageCalculator coverageCalculator = new BionanoCoverageCalculator(CMAP_REF, CMAP_QRY, XMAP);
         coverageCalculator.open();
         CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(chromosome, start, end);
+        coverageInfo.setSamplingSize(10);
         coverageCalculator.close();
 
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlot();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, 10, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, coverageInfo);
     }
 
     public static void testWgsOmCoverage(Chromosome chromosome, int start, int end, int threads) throws Exception {
@@ -138,19 +139,21 @@ public class TestCoveragePlot {
         coverageCalculatorOm.open();
         CoverageInfo coverageInfoOm = coverageCalculatorOm.getIntervalCoverage(chromosome, start, end);
         coverageInfoOm.setTitle("OM");
+        coverageInfoOm.setSamplingSize(10);
         coverageCalculatorOm.close();
 
         CoverageCalculator coverageCalculatorBam = new BamCoverageCalculatorMT(BAM_FILE, BAM_INDEX_FILE, threads);
         coverageCalculatorBam.open();
         CoverageInfo coverageInfoBam = coverageCalculatorBam.getIntervalCoverage(chromosome, start, end);
         coverageInfoBam.setTitle("WGS");
+        coverageInfoBam.setSamplingSize(100);
         coverageCalculatorBam.close();
 
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlot();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, 10, coverageInfoBam, coverageInfoOm);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, coverageInfoBam, coverageInfoOm);
     }
 
     private static void printTime(long mils) {

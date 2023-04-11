@@ -25,6 +25,12 @@ public class CoveragePlot {
         xAxis.setRange(coverageInfos[0].getPositionStart(), coverageInfos[0].getPositionEnd());
         coverageChart.getXYPlot().setDomainAxis(xAxis);
 
+        if (coverageInfos[0].getCoverageLimit() > 0) {
+            NumberAxis yAxis = new NumberAxis(yLabel);
+            yAxis.setRange(0, coverageInfos[0].getCoverageLimit());
+            coverageChart.getXYPlot().setRangeAxis(yAxis);
+        }
+
         File lineChart = new File( outputFile);
         ChartUtils.saveChartAsJPEG(lineChart , coverageChart, width ,height);
     }
