@@ -214,7 +214,7 @@ public class BionanoHtsCoverage {
             exitError();
         }
 
-        CoveragePlot coveragePlot = new CoveragePlot();
+        CoveragePlot coveragePlot = new CoveragePlotHistogram();
 
         if (singleImage) {
             if (StringUtils.isBlank(imgFile))

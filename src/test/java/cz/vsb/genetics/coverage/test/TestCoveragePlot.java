@@ -23,6 +23,8 @@ import cz.vsb.genetics.common.Chromosome;
 import cz.vsb.genetics.coverage.CoverageCalculator;
 import cz.vsb.genetics.coverage.CoverageInfo;
 import cz.vsb.genetics.coverage.main.CoveragePlot;
+import cz.vsb.genetics.coverage.main.CoveragePlotHistogram;
+import cz.vsb.genetics.coverage.main.CoveragePlotXYStepChart;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorMT;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorST;
 import cz.vsb.genetics.om.coverage.BionanoCoverageCalculator;
@@ -50,16 +52,18 @@ public class TestCoveragePlot {
 
     public static void main(String[] args) {
         try {
-
-
-            //TP53
+            //ch17 - TP53
 //            Chromosome chromosome = Chromosome.chr17;
 //            int start = 7668421;
 //            int end = 7687490;
 
+//            Chromosome chromosome = Chromosome.chr21;
+//            int start = 1;
+//            int end = 46709983;
+
             Chromosome chromosome = Chromosome.chr21;
-            int start = 1;
-            int end = 46709983;
+            int start = 8221000;
+            int end = 8222000;
 
             //testBamCoverageAtIntervalST(chromosome, start, end);
             //testBamCoverageAtIntervalMT(chromosome, start, end, 6);
@@ -82,12 +86,13 @@ public class TestCoveragePlot {
         coverageCalculator.open();
         CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(chromosome, start, end);
         coverageInfo.setSamplingSize(100);
+        coverageInfo.setCoverageLimit(2000);
         coverageCalculator.close();
 
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlot();
+        CoveragePlot coveragePlot = new CoveragePlotHistogram();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_ST, coverageInfo);
     }
 
@@ -106,7 +111,7 @@ public class TestCoveragePlot {
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlot();
+        CoveragePlot coveragePlot = new CoveragePlotXYStepChart();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_MT, coverageInfo);
     }
 
@@ -125,7 +130,7 @@ public class TestCoveragePlot {
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlot();
+        CoveragePlot coveragePlot = new CoveragePlotHistogram();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, coverageInfo);
     }
 
@@ -135,24 +140,26 @@ public class TestCoveragePlot {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        CoverageCalculator coverageCalculatorOm = new BionanoCoverageCalculator(CMAP_REF, CMAP_QRY, XMAP);
-        coverageCalculatorOm.open();
-        CoverageInfo coverageInfoOm = coverageCalculatorOm.getIntervalCoverage(chromosome, start, end);
-        coverageInfoOm.setTitle("OM");
-        coverageInfoOm.setSamplingSize(10);
-        coverageCalculatorOm.close();
-
         CoverageCalculator coverageCalculatorBam = new BamCoverageCalculatorMT(BAM_FILE, BAM_INDEX_FILE, threads);
         coverageCalculatorBam.open();
         CoverageInfo coverageInfoBam = coverageCalculatorBam.getIntervalCoverage(chromosome, start, end);
         coverageInfoBam.setTitle("WGS");
         coverageInfoBam.setSamplingSize(100);
+        coverageInfoBam.setColor(0x8000ff00);
         coverageCalculatorBam.close();
+
+        CoverageCalculator coverageCalculatorOm = new BionanoCoverageCalculator(CMAP_REF, CMAP_QRY, XMAP);
+        coverageCalculatorOm.open();
+        CoverageInfo coverageInfoOm = coverageCalculatorOm.getIntervalCoverage(chromosome, start, end);
+        coverageInfoOm.setTitle("OM");
+        coverageInfoOm.setSamplingSize(10);
+        coverageInfoOm.setColor(0x80ff0000);
+        coverageCalculatorOm.close();
 
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlot();
+        CoveragePlot coveragePlot = new CoveragePlotHistogram();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, coverageInfoBam, coverageInfoOm);
     }
 
