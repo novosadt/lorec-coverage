@@ -15,11 +15,15 @@ public class BionanoHtsCoverage {
     private static final String ARG_BIONANO_CMAP_REF = "bionano_cmap_ref";
     private static final String ARG_BIONANO_CMAP_QRY = "bionano_cmap_qry";
     private static final String ARG_BIONANO_XMAP = "bionano_xmap";
+    private static final String ARG_BIONANO_SAMPLING_STEP = "bionano_sampling_step";
     private static final String ARG_HTS_BAM = "hts_bam";
     private static final String ARG_HTS_BAI = "hts_bai";
+    private static final String ARG_HTS_SAMPLING_STEP = "hts_sampling_step";
     private static final String ARG_THREADS = "threads";
     private static final String ARG_REGION = "region";
     private static final String ARG_TITLE = "title";
+    private static final String ARG_SAMPLING_TYPE = "sampling_type";
+
     private static final String ARG_SINGLE_IMAGE = "single_image";
     private static final String ARG_COVERAGE_LIMIT = "coverage_limit";
     private static final String ARG_OUTPUT_CSV = "output_csv";
@@ -36,6 +40,8 @@ public class BionanoHtsCoverage {
         String bam = cmd.hasOption(ARG_HTS_BAM) ? cmd.getOptionValue(ARG_HTS_BAM) : null;
         String bai = cmd.hasOption(ARG_HTS_BAI) ? cmd.getOptionValue(ARG_HTS_BAI) : null;
         int threads = cmd.hasOption(ARG_THREADS) ? Integer.valueOf(cmd.getOptionValue(ARG_THREADS)) : 1;
+        int htsSamplingStep = cmd.hasOption(ARG_HTS_SAMPLING_STEP) ? Integer.valueOf(cmd.getOptionValue(ARG_HTS_SAMPLING_STEP)) : 100;
+        int bionanoSamplingStep = cmd.hasOption(ARG_BIONANO_SAMPLING_STEP) ? Integer.valueOf(cmd.getOptionValue(ARG_BIONANO_SAMPLING_STEP)) : 10;
         String region = cmd.getOptionValue(ARG_REGION);
         String title = cmd.hasOption(ARG_TITLE) ? cmd.getOptionValue(ARG_TITLE) : "";
         String outputCsv = cmd.hasOption(ARG_OUTPUT_CSV) ? cmd.getOptionValue(ARG_OUTPUT_CSV) : null;
@@ -43,10 +49,11 @@ public class BionanoHtsCoverage {
         String outputOmImg = cmd.hasOption(ARG_OUTPUT_OM_IMG) ? cmd.getOptionValue(ARG_OUTPUT_OM_IMG) : null;
         String outputImg = cmd.hasOption(ARG_OUTPUT_IMG) ? cmd.getOptionValue(ARG_OUTPUT_IMG) : null;
         boolean singleImage = cmd.hasOption(ARG_SINGLE_IMAGE) ? true : false;
+        SamplingType samplingType = cmd.hasOption(ARG_SAMPLING_TYPE) ? SamplingType.of(cmd.getOptionValue(ARG_SAMPLING_TYPE)) : SamplingType.RANDOM;
 
         try {
-            CoverageInfo htsCoverage = getCoverageInfoHts(bam, bai, ChromosomeRegion.valueOf(region), outputHtsImg, threads);
-            CoverageInfo omCoverage = getCoverageInfoOm(cmapReference, cmapQuery, xmap, ChromosomeRegion.valueOf(region), outputOmImg);
+            CoverageInfo htsCoverage = getCoverageInfoHts(bam, bai, ChromosomeRegion.valueOf(region), outputHtsImg, threads, htsSamplingStep);
+            CoverageInfo omCoverage = getCoverageInfoOm(cmapReference, cmapQuery, xmap, ChromosomeRegion.valueOf(region), outputOmImg, bionanoSamplingStep);
 
             if (cmd.hasOption(ARG_COVERAGE_LIMIT)) {
                 int coverageLimit = Integer.valueOf(cmd.getOptionValue(ARG_COVERAGE_LIMIT));
@@ -56,7 +63,7 @@ public class BionanoHtsCoverage {
                     omCoverage.setCoverageLimit(coverageLimit);
             }
 
-            plotCoverage(htsCoverage, omCoverage, outputHtsImg, outputOmImg, outputImg, title, singleImage);
+            plotCoverage(htsCoverage, omCoverage, outputHtsImg, outputOmImg, outputImg, title, singleImage, samplingType);
         }
         catch (Exception e) {
             System.out.println("Error occured: " + e.getMessage());
@@ -83,6 +90,11 @@ public class BionanoHtsCoverage {
         bionanoXmap.setType(String.class);
         options.addOption(bionanoXmap);
 
+        Option bionanoSamplingStep = new Option("hss", ARG_BIONANO_SAMPLING_STEP, true, "no. of marks used for Bionano optical maps sampling - default 10");
+        bionanoSamplingStep.setArgName("sampling step");
+        bionanoSamplingStep.setType(Integer.class);
+        options.addOption(bionanoSamplingStep);
+
         Option htsBam = new Option("bam", ARG_HTS_BAM, true, "hts bam file");
         htsBam.setArgName("bam file");
         htsBam.setType(String.class);
@@ -92,6 +104,11 @@ public class BionanoHtsCoverage {
         htsBai.setArgName("bai file");
         htsBai.setType(String.class);
         options.addOption(htsBai);
+
+        Option htsSamplingStep = new Option("hss", ARG_HTS_SAMPLING_STEP, true, "region size (no. of bases) used for HTS sampling - default 100");
+        htsSamplingStep.setArgName("sampling step");
+        htsSamplingStep.setType(Integer.class);
+        options.addOption(htsSamplingStep);
 
         Option threads = new Option("t", ARG_THREADS, true, "number of threads for parallel processing");
         threads.setArgName("threads");
@@ -113,6 +130,11 @@ public class BionanoHtsCoverage {
         title.setArgName("title");
         title.setType(String.class);
         options.addOption(title);
+
+        Option samplingType = new Option("st", ARG_SAMPLING_TYPE, true, "sampling type [random|mean|median|none] - default random");
+        samplingType.setArgName("sampling type");
+        samplingType.setType(String.class);
+        options.addOption(samplingType);
 
         Option singleImage = new Option("si", ARG_SINGLE_IMAGE, false, "whether to plot HTS and OM in single image");
         singleImage.setArgName("single image");
@@ -153,7 +175,7 @@ public class BionanoHtsCoverage {
                     "\njava -jar om-hts-coverage.jar ",
                     "\noptions:",
                     options,
-                    "\nTomas Novosad, VSB-TU Ostrava, 2022" +
+                    "\nTomas Novosad, VSB-TU Ostrava, 2023" +
                             "\nFEI, Department of Computer Science" +
                             "\nVersion: " + version() +
                             "\nLicense: GPL-3.0-only ");
@@ -177,7 +199,8 @@ public class BionanoHtsCoverage {
         return properties.getProperty("version");
     }
 
-    private static CoverageInfo getCoverageInfoHts(String bam, String bai, ChromosomeRegion region, String imgFile, int threads) throws Exception {
+    private static CoverageInfo getCoverageInfoHts(String bam, String bai, ChromosomeRegion region, String imgFile,
+                                                   int threads, int samplingSize) throws Exception {
         if (StringUtils.isBlank(bam) || StringUtils.isBlank(bai) || region == null || StringUtils.isBlank(imgFile))
             return null;
 
@@ -186,14 +209,15 @@ public class BionanoHtsCoverage {
             coverageCalculator.open();
 
             CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
-            coverageInfo.setSamplingSize(100);
+            coverageInfo.setSamplingSize(samplingSize);
             coverageInfo.setTitle("HTS");
 
             return coverageInfo;
         }
     }
 
-    private static CoverageInfo getCoverageInfoOm(String cmapRef, String cmapQry, String xmap, ChromosomeRegion region, String imgFile) throws Exception {
+    private static CoverageInfo getCoverageInfoOm(String cmapRef, String cmapQry, String xmap, ChromosomeRegion region,
+                                                  String imgFile, int samplingSize) throws Exception {
         if (StringUtils.isBlank(cmapRef) || StringUtils.isBlank(cmapQry) || StringUtils.isBlank(xmap) || region == null || StringUtils.isBlank(imgFile))
             return null;
 
@@ -201,15 +225,15 @@ public class BionanoHtsCoverage {
             coverageCalculator.open();
 
             CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
-            coverageInfo.setSamplingSize(10);
+            coverageInfo.setSamplingSize(samplingSize);
             coverageInfo.setTitle("OM");
 
             return coverageInfo;
         }
     }
 
-    private static void plotCoverage(CoverageInfo htsCoverage, CoverageInfo omCoverage,
-                                     String htsImgFile, String omImgFile, String imgFile, String title, boolean singleImage) throws Exception {
+    private static void plotCoverage(CoverageInfo htsCoverage, CoverageInfo omCoverage, String htsImgFile, String omImgFile, String imgFile,
+                                     String title, boolean singleImage, SamplingType samplingType) throws Exception {
         if (htsCoverage == null && omCoverage == null) {
             exitError();
         }
@@ -220,14 +244,14 @@ public class BionanoHtsCoverage {
             if (StringUtils.isBlank(imgFile))
                 exitError();
 
-            coveragePlot.plotCoverage(title, "Position", "Coverage", imgFile, htsCoverage, omCoverage);
+            coveragePlot.plotCoverage(title, "Position", "Coverage", imgFile, samplingType, htsCoverage, omCoverage);
         }
         else {
             if (htsCoverage != null)
-                coveragePlot.plotCoverage(title, "Position", "Coverage", htsImgFile, htsCoverage);
+                coveragePlot.plotCoverage(title, "Position", "Coverage", htsImgFile, samplingType, htsCoverage);
 
             if (omCoverage != null)
-                coveragePlot.plotCoverage(title, "Position", "Coverage", omImgFile, omCoverage);
+                coveragePlot.plotCoverage(title, "Position", "Coverage", omImgFile, samplingType, omCoverage);
         }
     }
 
