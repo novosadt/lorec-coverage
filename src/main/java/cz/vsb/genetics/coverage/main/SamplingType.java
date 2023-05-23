@@ -10,7 +10,7 @@ public enum SamplingType {
 
     public static SamplingType of(String value) {
         if (value == null)
-            return NONE;
+            return RANDOM;
 
         value = value.trim().toLowerCase();
 

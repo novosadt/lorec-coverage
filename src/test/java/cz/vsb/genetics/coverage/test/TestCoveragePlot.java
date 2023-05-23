@@ -25,6 +25,7 @@ import cz.vsb.genetics.coverage.CoverageInfo;
 import cz.vsb.genetics.coverage.main.CoveragePlot;
 import cz.vsb.genetics.coverage.main.CoveragePlotHistogram;
 import cz.vsb.genetics.coverage.main.CoveragePlotXYStepChart;
+import cz.vsb.genetics.coverage.main.SamplingType;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorMT;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorST;
 import cz.vsb.genetics.om.coverage.BionanoCoverageCalculator;
@@ -40,15 +41,15 @@ public class TestCoveragePlot {
 //    private static final String BAM_INDEX_FILE = "./src/test/resources/coverage/bam/test.bai";
     private static final String BAM_FILE = "c:\\data\\fnol\\wgs\\linkedread\\phased_possorted_bam.chr21.bam";
     private static final String BAM_INDEX_FILE = "c:\\data\\fnol\\wgs\\linkedread\\phased_possorted_bam.chr21.bam.bai";
-    private static final String BAM_COVERAGE_PLOT_ST = "./src/test/resources/coverage/bam/test.coverage.st.jpg";
-    private static final String BAM_COVERAGE_PLOT_MT = "./src/test/resources/coverage/bam/test.coverage.mt.jpg";
+    private static final String BAM_COVERAGE_PLOT_ST = "c:\\tmp\\fnol\\test-hts-coverage\\test.coverage.bam.st.jpg";
+    private static final String BAM_COVERAGE_PLOT_MT = "c:\\tmp\\fnol\\test-hts-coverage\\test.coverage.bam.mt.jpg";
 
-    private static final String CMAP_REF = "./src/test/resources/coverage/bionano/test_ref.cmap";
-    private static final String CMAP_QRY = "./src/test/resources/coverage/bionano/test_query.cmap";
-    private static final String XMAP = "./src/test/resources/coverage/bionano/test.xmap";
+    private static final String CMAP_REF = "c:\\data\\fnol\\wgs\\om\\test_r.cmap";
+    private static final String CMAP_QRY = "c:\\data\\fnol\\wgs\\om\\test_q.cmap";
+    private static final String XMAP = "c:\\data\\fnol\\wgs\\om\\test.xmap";
     private static final String OM_COVERAGE_PLOT = "./src/test/resources/coverage/bam/test.coverage.om.jpg";
 
-    private static final String OM_BAM_COVERAGE_PLOT = "./src/test/resources/coverage/bam/test.coverage.om.bam.jpg";
+    private static final String OM_BAM_COVERAGE_PLOT = "c:\\tmp\\fnol\\test-hts-coverage\\test.coverage.om.bam.jpg";
 
     public static void main(String[] args) {
         try {
@@ -57,13 +58,13 @@ public class TestCoveragePlot {
 //            int start = 7668421;
 //            int end = 7687490;
 
-//            Chromosome chromosome = Chromosome.chr21;
-//            int start = 1;
-//            int end = 46709983;
-
             Chromosome chromosome = Chromosome.chr21;
-            int start = 8221000;
-            int end = 8222000;
+            int start = 1;
+            int end = 46709983;
+
+//            Chromosome chromosome = Chromosome.chr21;
+//            int start = 8221000;
+//            int end = 8222000;
 
             //testBamCoverageAtIntervalST(chromosome, start, end);
             //testBamCoverageAtIntervalMT(chromosome, start, end, 6);
@@ -93,7 +94,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotHistogram();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_ST, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_ST, SamplingType.RANDOM, coverageInfo);
     }
 
     public static void testBamCoverageAtIntervalMT(Chromosome chromosome, int start, int end, int threads) throws Exception {
@@ -112,7 +113,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotXYStepChart();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_MT, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_MT, SamplingType.RANDOM, coverageInfo);
     }
 
     public static void testOmCoverageAtInterval(Chromosome chromosome, int start, int end) throws Exception {
@@ -131,7 +132,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotHistogram();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, SamplingType.RANDOM, coverageInfo);
     }
 
     public static void testWgsOmCoverage(Chromosome chromosome, int start, int end, int threads) throws Exception {
@@ -160,7 +161,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotHistogram();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, coverageInfoBam, coverageInfoOm);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, SamplingType.RANDOM, coverageInfoBam, coverageInfoOm);
     }
 
     private static void printTime(long mils) {

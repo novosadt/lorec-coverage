@@ -20,7 +20,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
     protected int width = 1600;
     protected int height = 1200;
 
-    protected abstract JFreeChart createChart(String title, String xLabel, String yLabel, CoverageInfo... coverageInfos);
+    protected abstract JFreeChart createChart(String title, String xLabel, String yLabel, SamplingType samplingType, CoverageInfo... coverageInfos);
 
     public void setWidth(int width) {
         this.width = width;
@@ -30,11 +30,12 @@ public abstract class CoveragePlotBase implements CoveragePlot {
         this.height = height;
     }
 
-    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, CoverageInfo... coverageInfos) throws Exception {
+    @Override
+    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, SamplingType samplingType, CoverageInfo... coverageInfos) throws Exception {
         NumberAxis domainAxis = new NumberAxis(xLabel);
         setupDomainAxisRange(domainAxis, coverageInfos);
 
-        JFreeChart coverageChart = createChart(title, xLabel, yLabel, coverageInfos);
+        JFreeChart coverageChart = createChart(title, xLabel, yLabel, samplingType, coverageInfos);
 
         XYPlot xyPlot = coverageChart.getXYPlot();
         xyPlot.setDomainAxis(domainAxis);
