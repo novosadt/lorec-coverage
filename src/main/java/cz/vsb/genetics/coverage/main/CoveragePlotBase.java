@@ -39,6 +39,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
 
         XYPlot xyPlot = coverageChart.getXYPlot();
         xyPlot.setDomainAxis(domainAxis);
+        xyPlot.setForegroundAlpha(0.85F);
 
         int coverageLimit = getCoverageLimit(coverageInfos);
         if (coverageLimit > 0) {
@@ -63,6 +64,9 @@ public abstract class CoveragePlotBase implements CoveragePlot {
 
             XYSeries series = new XYSeries(coverageInfo.getTitle());
             int[] coverage = coverageInfo.getCoverages();
+
+            if (coverageInfo.getSamplingSize() < 3)
+                samplingType = SamplingType.NONE;
 
             switch (samplingType) {
                 case NONE: sampleNone(coverageInfo, series, coverage); break;
@@ -100,46 +104,39 @@ public abstract class CoveragePlotBase implements CoveragePlot {
 
     private static void sampleMean(CoverageInfo coverageInfo, XYSeries series, int[] coverage) {
         int sampleSize = coverageInfo.getSamplingSize() - 1;
-        Random random = new Random();
-
-        long sum = 0;
-        int to = coverageInfo.getPositionStart() + sampleSize;
-        to = to > coverage.length ? coverage.length : to;
         int counter = 0;
+        int sum = 0;
 
-        for (int i = coverageInfo.getPositionStart(); i < to; i++) {
+        for (int i = 0; i < coverage.length; i++) {
             sum += coverage[i];
 
             if (++counter == sampleSize) {
-                series.add((i - sampleSize + i) / 2 , sum / sampleSize);
+                series.add(coverageInfo.getPositionStart() + (i - sampleSize / 2) , sum / sampleSize);
                 sum = 0;
                 counter = 0;
             }
         }
 
         if (counter > 0)
-            series.add((coverage.length - counter + coverage.length) / 2 , sum / counter);
+            series.add(coverageInfo.getPositionEnd() - counter / 2 , sum / counter);
     }
 
     private static void sampleMedian(CoverageInfo coverageInfo, XYSeries series, int[] coverage) {
-        int sampleSize = coverageInfo.getSamplingSize() - 1;
-        Random random = new Random();
+        int sampleSize = coverageInfo.getSamplingSize();
 
-        int to = coverageInfo.getPositionStart() + sampleSize;
-        to = to > coverage.length ? coverage.length : to;
         List<Integer> values = new ArrayList<>();
 
-        for (int i = coverageInfo.getPositionStart(); i < to; i++) {
+        for (int i = 0; i < coverage.length; i++) {
             values.add(coverage[i]);
 
             if (values.size() == sampleSize) {
-                series.add((i - sampleSize + i) / 2 , ObjectUtils.median(values.toArray(new Integer[sampleSize])));
+                series.add(coverageInfo.getPositionStart() + (i - sampleSize / 2) , ObjectUtils.median(values.toArray(new Integer[sampleSize])));
                 values.clear();
             }
         }
 
         if (values.size() > 0)
-            series.add((coverage.length - values.size() + coverage.length) / 2 , ObjectUtils.median(values.toArray(new Integer[values.size()])));
+            series.add(coverageInfo.getPositionEnd() - values.size() / 2, ObjectUtils.median(values.toArray(new Integer[values.size()])));
     }
 
     protected int getCoverageLimit(CoverageInfo[] coverageInfos) {

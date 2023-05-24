@@ -23,7 +23,7 @@ import cz.vsb.genetics.common.Chromosome;
 import cz.vsb.genetics.coverage.CoverageCalculator;
 import cz.vsb.genetics.coverage.CoverageInfo;
 import cz.vsb.genetics.coverage.main.CoveragePlot;
-import cz.vsb.genetics.coverage.main.CoveragePlotHistogram;
+import cz.vsb.genetics.coverage.main.CoveragePlotHistogramChart;
 import cz.vsb.genetics.coverage.main.CoveragePlotXYStepChart;
 import cz.vsb.genetics.coverage.main.SamplingType;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorMT;
@@ -93,7 +93,7 @@ public class TestCoveragePlot {
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlotHistogram();
+        CoveragePlot coveragePlot = new CoveragePlotHistogramChart();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_ST, SamplingType.RANDOM, coverageInfo);
     }
 
@@ -131,7 +131,7 @@ public class TestCoveragePlot {
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlotHistogram();
+        CoveragePlot coveragePlot = new CoveragePlotHistogramChart();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, SamplingType.RANDOM, coverageInfo);
     }
 
@@ -160,7 +160,7 @@ public class TestCoveragePlot {
         stopWatch.stop();
         printTime(stopWatch.getTime());
 
-        CoveragePlot coveragePlot = new CoveragePlotHistogram();
+        CoveragePlot coveragePlot = new CoveragePlotHistogramChart();
         coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, SamplingType.RANDOM, coverageInfoBam, coverageInfoOm);
     }
 

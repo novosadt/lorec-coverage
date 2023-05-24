@@ -9,6 +9,7 @@ import cz.vsb.genetics.om.coverage.BionanoCoverageCalculator;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.awt.*;
 import java.util.Properties;
 
 public class BionanoHtsCoverage {
@@ -92,7 +93,7 @@ public class BionanoHtsCoverage {
         bionanoXmap.setType(String.class);
         options.addOption(bionanoXmap);
 
-        Option bionanoSamplingStep = new Option("hss", ARG_BIONANO_SAMPLING_STEP, true, "no. of marks used for Bionano optical maps sampling - default 10");
+        Option bionanoSamplingStep = new Option("bss", ARG_BIONANO_SAMPLING_STEP, true, "no. of marks used for Bionano optical maps sampling - default 10");
         bionanoSamplingStep.setArgName("sampling step");
         bionanoSamplingStep.setType(Integer.class);
         options.addOption(bionanoSamplingStep);
@@ -138,7 +139,7 @@ public class BionanoHtsCoverage {
         samplingType.setType(String.class);
         options.addOption(samplingType);
 
-        Option plotType = new Option("pt", ARG_PLOT_TYPE, true, "plot type [histogram|line] - default histogram");
+        Option plotType = new Option("pt", ARG_PLOT_TYPE, true, "plot type [histogram|line|spline] - default histogram");
         plotType.setArgName("plot type");
         plotType.setType(String.class);
         options.addOption(plotType);
@@ -216,6 +217,7 @@ public class BionanoHtsCoverage {
 
             CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
             coverageInfo.setSamplingSize(samplingSize);
+            coverageInfo.setColor(Color.RED.getRGB());
             coverageInfo.setTitle("HTS");
 
             return coverageInfo;
@@ -231,6 +233,7 @@ public class BionanoHtsCoverage {
 
             CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
             coverageInfo.setSamplingSize(samplingSize);
+            coverageInfo.setColor(Color.BLUE.getRGB());
             coverageInfo.setTitle("OM");
 
             return coverageInfo;
@@ -243,16 +246,7 @@ public class BionanoHtsCoverage {
             exitError();
         }
 
-        CoveragePlot coveragePlot;
-
-        switch (plotType) {
-            case LINE:
-                coveragePlot = new CoveragePlotXYStepChart();
-                break;
-            default:
-                coveragePlot = new CoveragePlotHistogram();
-                break;
-        }
+        CoveragePlot coveragePlot = createCoveragePlot(plotType);
 
         if (singleImage) {
             if (StringUtils.isBlank(imgFile))
@@ -267,6 +261,24 @@ public class BionanoHtsCoverage {
             if (omCoverage != null)
                 coveragePlot.plotCoverage(title, "Position", "Coverage", omImgFile, samplingType, omCoverage);
         }
+    }
+
+    private static CoveragePlot createCoveragePlot(PlotType plotType) {
+        CoveragePlot coveragePlot;
+
+        switch (plotType) {
+            case LINE:
+                coveragePlot = new CoveragePlotXYStepChart();
+                break;
+            case SPLINE:
+                coveragePlot = new CoveragePlotXYSplineChart();
+                break;
+            default:
+                coveragePlot = new CoveragePlotHistogramChart();
+                break;
+        }
+
+        return coveragePlot;
     }
 
     private static void exitError() {

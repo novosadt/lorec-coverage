@@ -3,6 +3,7 @@ package cz.vsb.genetics.coverage.main;
 public enum PlotType {
     HISTOGRAM,
     LINE,
+    SPLINE,
 
     ;
 
@@ -15,6 +16,7 @@ public enum PlotType {
         switch (value) {
             case "histogram" : return HISTOGRAM;
             case "line" : return LINE;
+            case "spline" : return SPLINE;
             default: return HISTOGRAM;
         }
     }
