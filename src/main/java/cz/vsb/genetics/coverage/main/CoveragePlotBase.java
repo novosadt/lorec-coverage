@@ -1,7 +1,6 @@
 package cz.vsb.genetics.coverage.main;
 
 import cz.vsb.genetics.coverage.CoverageInfo;
-import org.apache.commons.lang3.ObjectUtils;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -12,9 +11,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public abstract class CoveragePlotBase implements CoveragePlot {
     protected int width = 1600;
@@ -62,7 +60,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
             if (coverageInfo == null)
                 continue;
 
-            XYSeries series = new XYSeries(coverageInfo.getTitle());
+            XYSeries series = new XYSeries(coverageInfo.getName());
             int[] coverage = coverageInfo.getCoverages();
 
             if (coverageInfo.getSamplingSize() < 3)
@@ -121,22 +119,25 @@ public abstract class CoveragePlotBase implements CoveragePlot {
             series.add(coverageInfo.getPositionEnd() - counter / 2 , sum / counter);
     }
 
-    private static void sampleMedian(CoverageInfo coverageInfo, XYSeries series, int[] coverage) {
+    private static void sampleMedian(CoverageInfo coverageInfo, XYSeries series, int[] coverages) {
         int sampleSize = coverageInfo.getSamplingSize();
 
         List<Integer> values = new ArrayList<>();
 
-        for (int i = 0; i < coverage.length; i++) {
-            values.add(coverage[i]);
+        for (int i = 0; i < coverages.length; i++) {
+            values.add(coverages[i]);
 
             if (values.size() == sampleSize) {
-                series.add(coverageInfo.getPositionStart() + (i - sampleSize / 2) , ObjectUtils.median(values.toArray(new Integer[sampleSize])));
+                Collections.sort(values);
+                series.add(coverageInfo.getPositionStart() + (i - sampleSize / 2) , values.get((values.size() -1) / 2));
                 values.clear();
             }
         }
 
-        if (values.size() > 0)
-            series.add(coverageInfo.getPositionEnd() - values.size() / 2, ObjectUtils.median(values.toArray(new Integer[values.size()])));
+        if (values.size() > 0) {
+            Collections.sort(values);
+            series.add(coverageInfo.getPositionEnd() - values.size() / 2, values.get((values.size() -1) / 2));
+        }
     }
 
     protected int getCoverageLimit(CoverageInfo[] coverageInfos) {

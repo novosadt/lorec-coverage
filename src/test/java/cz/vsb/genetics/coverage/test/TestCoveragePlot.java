@@ -144,7 +144,7 @@ public class TestCoveragePlot {
         CoverageCalculator coverageCalculatorBam = new BamCoverageCalculatorMT(BAM_FILE, BAM_INDEX_FILE, threads);
         coverageCalculatorBam.open();
         CoverageInfo coverageInfoBam = coverageCalculatorBam.getIntervalCoverage(chromosome, start, end);
-        coverageInfoBam.setTitle("WGS");
+        coverageInfoBam.setName("WGS");
         coverageInfoBam.setSamplingSize(100);
         coverageInfoBam.setColor(0x8000ff00);
         coverageCalculatorBam.close();
@@ -152,7 +152,7 @@ public class TestCoveragePlot {
         CoverageCalculator coverageCalculatorOm = new BionanoCoverageCalculator(CMAP_REF, CMAP_QRY, XMAP);
         coverageCalculatorOm.open();
         CoverageInfo coverageInfoOm = coverageCalculatorOm.getIntervalCoverage(chromosome, start, end);
-        coverageInfoOm.setTitle("OM");
+        coverageInfoOm.setName("OM");
         coverageInfoOm.setSamplingSize(10);
         coverageInfoOm.setColor(0x80ff0000);
         coverageCalculatorOm.close();
