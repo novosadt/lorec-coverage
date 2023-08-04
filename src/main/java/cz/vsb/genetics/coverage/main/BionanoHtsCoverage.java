@@ -239,7 +239,7 @@ public class BionanoHtsCoverage {
         assert coverageInfosHts.size() == regions.size() && coverageInfosOm.size() == regions.size();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputStats))) {
-            writer.write("contig_name\tregion\thts_min\thts_q1\thts_median\thts_q3\thts_max\thts_mean\thts_stddev\tom_min\tom_q2\tom_median\tom_q3\tom_max\tom_mean\tom_stddev\n");
+            writer.write("contig_name\tregion\tlength\thts_min\thts_q1\thts_median\thts_q3\thts_max\thts_mean\thts_stddev\tom_min\tom_q2\tom_median\tom_q3\tom_max\tom_mean\tom_stddev\tom_site_count\n");
             CoverageStatistics stats = new CoverageStatistics();
             for (int i = 0; i < coverageInfosHts.size(); i++) {
                 ChromosomeRegion region = regions.get(i);
@@ -248,7 +248,7 @@ public class BionanoHtsCoverage {
                 CoverageInfo coverageInfoHts = coverageInfosHts.get(i);
                 CoverageInfo coverageInfoOm = coverageInfosOm.get(i);
 
-                String out = String.format("%s\t%s", region.getName(), region);
+                String out = String.format("%s\t%s\t%d", region.getName(), region, region.getLength());
                 String format = "\t%d\t%d\t%d\t%d\t%d\t%d\t%d";
                 String blank = "\t\t\t\t\t\t\t";
 
@@ -262,9 +262,10 @@ public class BionanoHtsCoverage {
                 if (coverageInfoOm != null) {
                     stats.calculateStatistics(coverageInfoOm);
                     out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
+                    out += "\t" + coverageInfoOm.getSiteCount();
                 }
                 else
-                    out += blank;
+                    out += blank + "\t";
 
                 out += "\n";
 
