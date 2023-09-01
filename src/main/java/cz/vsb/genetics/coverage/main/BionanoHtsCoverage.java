@@ -122,7 +122,6 @@ public class BionanoHtsCoverage {
         options.addOption(region);
 
         Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest (contig_name region");
-        regionFile.setRequired(true);
         regionFile.setArgName("chromosomal regions file");
         regionFile.setType(String.class);
         options.addOption(regionFile);
