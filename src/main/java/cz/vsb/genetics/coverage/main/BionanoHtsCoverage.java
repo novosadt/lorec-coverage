@@ -31,7 +31,8 @@ public class BionanoHtsCoverage {
     private static final String ARG_SAMPLING_TYPE = "sampling_type";
     private static final String ARG_PLOT_TYPE = "plot_type";
     private static final String ARG_SINGLE_IMAGE = "single_image";
-    private static final String ARG_COVERAGE_LIMIT = "coverage_limit";
+    private static final String ARG_COVERAGE_LIMIT_HTS = "coverage_limit_hts";
+    private static final String ARG_COVERAGE_LIMIT_OM = "coverage_limit_om";
     private static final String ARG_OUTPUT_HTS_IMG = "output_hts_img";
     private static final String ARG_OUTPUT_OM_IMG = "output_om_img";
     private static final String ARG_OUTPUT_IMG = "output_img";
@@ -111,10 +112,15 @@ public class BionanoHtsCoverage {
         threads.setType(Integer.class);
         options.addOption(threads);
 
-        Option coverageLimit = new Option("cl", ARG_COVERAGE_LIMIT, true, "Set coverage limit for plotting (maximum y axis value)");
-        coverageLimit.setArgName("coverage limit");
-        coverageLimit.setType(Integer.class);
-        options.addOption(coverageLimit);
+        Option coverageLimitHts = new Option("hcl", ARG_COVERAGE_LIMIT_HTS, true, "Set coverage limit for plotting HTS (maximum y axis value)");
+        coverageLimitHts.setArgName("coverage limit");
+        coverageLimitHts.setType(Integer.class);
+        options.addOption(coverageLimitHts);
+
+        Option coverageLimitOm = new Option("bcl", ARG_COVERAGE_LIMIT_OM, true, "Set coverage limit for plotting Bionano optical maps (maximum y axis value)");
+        coverageLimitOm.setArgName("coverage limit");
+        coverageLimitOm.setType(Integer.class);
+        options.addOption(coverageLimitOm);
 
         Option region = new Option("r", ARG_REGION, true, "chromosomal region of interest (e.g. chr1:1-1000)");
         region.setArgName("chromosomal region");
@@ -293,10 +299,14 @@ public class BionanoHtsCoverage {
             exitError("Missing arguments for coverage calculation. Some of bam, bai, cmap, xmap or region");
         }
 
-        if (cmd.hasOption(ARG_COVERAGE_LIMIT)) {
-            int coverageLimit = Integer.valueOf(cmd.getOptionValue(ARG_COVERAGE_LIMIT));
+        if (cmd.hasOption(ARG_COVERAGE_LIMIT_HTS)) {
+            int coverageLimit = Integer.valueOf(cmd.getOptionValue(ARG_COVERAGE_LIMIT_HTS));
             if (htsCoverage != null)
                 htsCoverage.setCoverageLimit(coverageLimit);
+        }
+
+        if (cmd.hasOption(ARG_COVERAGE_LIMIT_OM)) {
+            int coverageLimit = Integer.valueOf(cmd.getOptionValue(ARG_COVERAGE_LIMIT_OM));
             if (omCoverage != null)
                 omCoverage.setCoverageLimit(coverageLimit);
         }
@@ -330,6 +340,7 @@ public class BionanoHtsCoverage {
             List<CoverageInfo> coverageInfos = new ArrayList<>();
             int counter = 1;
             for (ChromosomeRegion region : regions) {
+
                 System.out.printf("Calculating coverage for: %s - %s... %d/%d\n", region.getName(), region, counter++, regions.size());
 
                 CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
