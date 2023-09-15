@@ -33,6 +33,8 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -94,7 +96,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotHistogramChart();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_ST, SamplingType.RANDOM, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_ST, SamplingType.RANDOM, Collections.singletonList(coverageInfo));
     }
 
     public static void testBamCoverageAtIntervalMT(Chromosome chromosome, int start, int end, int threads) throws Exception {
@@ -113,7 +115,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotXYStepChart();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_MT, SamplingType.RANDOM, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", BAM_COVERAGE_PLOT_MT, SamplingType.RANDOM, Collections.singletonList(coverageInfo));
     }
 
     public static void testOmCoverageAtInterval(Chromosome chromosome, int start, int end) throws Exception {
@@ -132,7 +134,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotHistogramChart();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, SamplingType.RANDOM, coverageInfo);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_COVERAGE_PLOT, SamplingType.RANDOM, Collections.singletonList(coverageInfo));
     }
 
     public static void testWgsOmCoverage(Chromosome chromosome, int start, int end, int threads) throws Exception {
@@ -161,7 +163,7 @@ public class TestCoveragePlot {
         printTime(stopWatch.getTime());
 
         CoveragePlot coveragePlot = new CoveragePlotHistogramChart();
-        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, SamplingType.RANDOM, coverageInfoBam, coverageInfoOm);
+        coveragePlot.plotCoverage("Chromosome 21", "position", "coverage", OM_BAM_COVERAGE_PLOT, SamplingType.RANDOM, Arrays.asList(coverageInfoBam, coverageInfoOm));
     }
 
     private static void printTime(long mils) {

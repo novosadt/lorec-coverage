@@ -18,7 +18,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
     protected int width = 1600;
     protected int height = 1200;
 
-    protected abstract JFreeChart createChart(String title, String xLabel, String yLabel, SamplingType samplingType, CoverageInfo... coverageInfos);
+    protected abstract JFreeChart createChart(String title, String xLabel, String yLabel, SamplingType samplingType, List<CoverageInfo> coverageInfos);
 
     public void setWidth(int width) {
         this.width = width;
@@ -29,7 +29,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
     }
 
     @Override
-    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, SamplingType samplingType, CoverageInfo... coverageInfos) throws Exception {
+    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, SamplingType samplingType, List<CoverageInfo> coverageInfos) throws Exception {
         NumberAxis domainAxis = new NumberAxis(xLabel);
         setupDomainAxisRange(domainAxis, coverageInfos);
 
@@ -53,7 +53,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
         ChartUtils.saveChartAsJPEG(lineChart , coverageChart, width ,height);
     }
 
-    protected XYSeriesCollection createDataset(CoverageInfo[] coverageInfos, SamplingType samplingType) {
+    protected XYSeriesCollection createDataset(List<CoverageInfo> coverageInfos, SamplingType samplingType) {
         XYSeriesCollection dataset = new XYSeriesCollection();
 
         for (CoverageInfo coverageInfo : coverageInfos) {
@@ -140,7 +140,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
         }
     }
 
-    protected int getCoverageLimit(CoverageInfo[] coverageInfos) {
+    protected int getCoverageLimit(List<CoverageInfo> coverageInfos) {
         int max = 0;
 
         for (CoverageInfo coverageInfo : coverageInfos)
@@ -150,7 +150,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
         return max;
     }
 
-    private void setupDomainAxisRange(NumberAxis domainAxis, CoverageInfo[] coverageInfos) {
+    private void setupDomainAxisRange(NumberAxis domainAxis, List<CoverageInfo> coverageInfos) {
         int lower = Integer.MAX_VALUE;
         int upper = 0;
 
@@ -165,17 +165,17 @@ public abstract class CoveragePlotBase implements CoveragePlot {
         domainAxis.setRange(lower, upper);
     }
 
-    private void setupSerieColors(XYPlot xyPlot, CoverageInfo[] coverageInfos) {
+    private void setupSerieColors(XYPlot xyPlot, List<CoverageInfo> coverageInfos) {
         for (CoverageInfo coverageInfo : coverageInfos)
             if (coverageInfo.getColor() == null)
                 return;
 
-        Paint[] colors = new Paint[coverageInfos.length];
+        Paint[] colors = new Paint[coverageInfos.size()];
         for (int i = 0; i < colors.length; i++)
-            colors[i] = new Color(coverageInfos[i].getColor(), true);
+            colors[i] = new Color(coverageInfos.get(i).getColor(), true);
 
         xyPlot.setDrawingSupplier(new DefaultDrawingSupplier(
-                colors,
+                DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE,
                 DefaultDrawingSupplier.DEFAULT_FILL_PAINT_SEQUENCE,
                 DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
                 DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
