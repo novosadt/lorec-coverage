@@ -1,20 +1,24 @@
 package cz.vsb.genetics.coverage.main;
 
 import cz.vsb.genetics.coverage.CoverageInfo;
-import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public abstract class CoveragePlotBase implements CoveragePlot {
+    private static final Logger log = LoggerFactory.getLogger(CoveragePlot.class);
+
     protected int width = 1600;
     protected int height = 1200;
 
@@ -29,7 +33,7 @@ public abstract class CoveragePlotBase implements CoveragePlot {
     }
 
     @Override
-    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, SamplingType samplingType, List<CoverageInfo> coverageInfos) throws Exception {
+    public void plotCoverage(String title, String xLabel, String yLabel, String outputFile, SamplingType samplingType, List<CoverageInfo> coverageInfos, ImageFormat format) throws Exception {
         NumberAxis domainAxis = new NumberAxis(xLabel);
         setupDomainAxisRange(domainAxis, coverageInfos);
 
@@ -49,8 +53,8 @@ public abstract class CoveragePlotBase implements CoveragePlot {
 
         setupSerieColors(xyPlot, coverageInfos);
 
-        File lineChart = new File(outputFile);
-        ChartUtils.saveChartAsJPEG(lineChart , coverageChart, width ,height);
+        log.info(String.format("Plotting image (format %s): %s", format.toString(), outputFile));
+        ImageWriter.saveImage(outputFile, coverageChart, width, height, format);
     }
 
     protected XYSeriesCollection createDataset(List<CoverageInfo> coverageInfos, SamplingType samplingType) {

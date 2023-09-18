@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CoveragePlot {
     void plotCoverage(String title, String xLabel, String yLabel, String outputFile,
-                      SamplingType samplingType, List<CoverageInfo> coverageInfos) throws Exception;
+                      SamplingType samplingType, List<CoverageInfo> coverageInfos, ImageFormat format) throws Exception;
 }
