@@ -44,9 +44,6 @@ public class BionanoHtsCoverage {
     private static final String ARG_OUTPUT_FORMAT = "output_format";
     private static final String ARG_SAMPLE_NAME = "sample_name";
 
-
-    private static final Color[] COLORS = {Color.BLACK, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.LIGHT_GRAY, Color.GREEN, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED, Color.YELLOW};
-
     public static void main(String[] args) {
         CommandLine cmd = getCommandLine(args);
 
