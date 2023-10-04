@@ -237,47 +237,91 @@ public class BionanoHtsCoverage {
         int threads = cmd.hasOption(ARG_THREADS) ? Integer.parseInt(cmd.getOptionValue(ARG_THREADS)) : 1;
 
         List<ChromosomeRegion> regions = getChromosomeRegions(regionFile);
-        Map<ChromosomeRegion, List<CoverageInfo>> coverageInfosHts = getCoverageInfoHts(bams, regions, threads, 0);
-        Map<ChromosomeRegion, CoverageInfo> coverageInfosOm = getCoverageInfoOm(cmapReference, cmapQuery, xmap, regions, 0);
 
-        assert coverageInfosHts.size() == regions.size() && coverageInfosOm.size() == regions.size();
+        if (regions == null || regions.size() == 0) {
+            log.info("No contigs / regions found - cannot calculate coverage statistics");
+            return;
+        }
+
+        Map<ChromosomeRegion, List<CoverageInfo>> coverageInfosHts = null;
+        Map<ChromosomeRegion, CoverageInfo> coverageInfosOm = null;
+
+        if (bams != null && bams.length > 0)
+            coverageInfosHts = getCoverageInfoHts(bams, regions, threads, 0);
+
+        if (StringUtils.isNotBlank(cmapReference) && StringUtils.isNotBlank(cmapQuery) && StringUtils.isNotBlank(xmap))
+            coverageInfosOm = getCoverageInfoOm(cmapReference, cmapQuery, xmap, regions, 0);
+
+        String format = "\t%d\t%d\t%d\t%d\t%d\t%d\t%d";
+        CoverageStatistics stats = new CoverageStatistics();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputStats))) {
-            writer.write("contig_name\tregion\tlength\thts_min\thts_q1\thts_median\thts_q3\thts_max\thts_mean\thts_stddev\tom_min\tom_q2\tom_median\tom_q3\tom_max\tom_mean\tom_stddev\tom_site_count\n");
-            CoverageStatistics stats = new CoverageStatistics();
+            writer.write(getStatisticsHeader(coverageInfosOm != null, bams));
+
             for (int i = 0; i < regions.size(); i++) {
                 ChromosomeRegion region = regions.get(i);
                 log.info(String.format("Calculating statistics for: %s - %s... %d/%d\n", region.getName(), region, i + 1, coverageInfosHts.size()));
-
-                List<CoverageInfo> coverageInfoHts = coverageInfosHts.get(region);
-                CoverageInfo coverageInfoOm = coverageInfosOm.get(region);
-
                 String out = String.format("%s\t%s\t%d", region.getName(), region, region.getLength());
-                String format = "\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d";
-                String blank = "\t\t\t\t\t\t\t\t";
 
-                if (coverageInfoHts != null) {
-                    for (CoverageInfo coverageInfo : coverageInfoHts) {
-                        stats.calculateStatistics(coverageInfo);
-                        out += String.format(format, coverageInfo.getName(), stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
-                    }
-                }
-                else
-                    out += blank;
+                if (coverageInfosOm != null) {
+                    CoverageInfo coverageInfoOm = coverageInfosOm.get(region);
 
-                if (coverageInfoOm != null) {
                     stats.calculateStatistics(coverageInfoOm);
-                    out += String.format(format, coverageInfoOm.getName(), stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
+                    out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
                     out += "\t" + coverageInfoOm.getSiteCount();
                 }
-                else
-                    out += blank + "\t";
+
+                if (coverageInfosHts != null) {
+                    List<CoverageInfo> coverageInfoHts = coverageInfosHts.get(region);
+
+                    for (CoverageInfo coverageInfo : coverageInfoHts) {
+                        stats.calculateStatistics(coverageInfo);
+                        out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
+                    }
+                }
 
                 out += "\n";
 
                 writer.write(out);
             }
         }
+    }
+    
+    private String getStatisticsHeader(boolean isOm, String[] bams) {
+        String header = 
+                "contig_name\t" +
+                "region\t" + 
+                "length";
+
+        if (isOm) {
+            header +=
+                    "\tom_min" +
+                    "\tom_q1" +
+                    "\tom_median" +
+                    "\tom_q3" +
+                    "\tom_max" +
+                    "\tom_mean" +
+                    "\tom_stddev" +
+                    "\tom_site_count";
+        }
+
+        
+        for (String bam : bams) {
+            String name = getHtsCoverageInfoName(bam) + "_";
+            
+            header +=
+                    "\t" + name + "_min" +
+                    "\t" + name + "_q1" +
+                    "\t" + name + "_median" +
+                    "\t" + name + "_q3" +
+                    "\t" + name + "_max" +
+                    "\t" + name + "_mean" +
+                    "\t" + name + "_stddev";
+        }
+
+        header += "\n";
+
+        return header;
     }
 
     private List<ChromosomeRegion> getChromosomeRegions(String regionFile) throws IOException {
@@ -440,7 +484,7 @@ public class BionanoHtsCoverage {
                     CoverageInfo coverageInfo = coverageCalculator.getIntervalCoverage(region.getChromosome(), region.getStart(), region.getEnd());
                     coverageInfo.setSamplingSize(samplingSize);
                     coverageInfo.setColor(Color.RED.getRGB());
-                    coverageInfo.setName("HTS - " + FilenameUtils.removeExtension(new File(bam).getName()));
+                    coverageInfo.setName(getHtsCoverageInfoName(bam));
 
                     coverageInfos.add(coverageInfo);
                 }
@@ -448,6 +492,10 @@ public class BionanoHtsCoverage {
         }
 
         return coverages;
+    }
+
+    private String getHtsCoverageInfoName(String bam) {
+        return "hts_" + FilenameUtils.removeExtension(new File(bam).getName());
     }
 
     private CoverageInfo getCoverageInfoOm(String cmapRef, String cmapQry, String xmap, ChromosomeRegion region, int samplingSize) throws Exception {
