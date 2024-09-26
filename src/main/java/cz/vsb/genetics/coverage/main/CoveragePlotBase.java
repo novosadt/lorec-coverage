@@ -53,6 +53,16 @@ public abstract class CoveragePlotBase implements CoveragePlot {
 
         setupSerieColors(xyPlot, coverageInfos);
 
+        Font fontLabel = new Font("Dialog", Font.PLAIN, 25);
+        Font fontTick = new Font("Dialog", Font.PLAIN, 15);
+        Font fontLegend = new Font("Dialog", Font.PLAIN, 15);
+        xyPlot.getDomainAxis().setLabelFont(fontLabel);
+        xyPlot.getRangeAxis().setLabelFont(fontLabel);
+        xyPlot.getDomainAxis().setTickLabelFont(fontTick);
+        xyPlot.getRangeAxis().setTickLabelFont(fontTick);
+
+        coverageChart.getLegend().setItemFont(fontLegend);
+
         log.info(String.format("Plotting image (format %s): %s", format.toString(), outputFile));
         ImageWriter.saveImage(outputFile, coverageChart, width, height, format);
     }
