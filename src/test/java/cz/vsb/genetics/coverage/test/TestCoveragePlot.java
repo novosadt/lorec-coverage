@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021  Tomas Novosad
+ * Copyright (C) 2025  Tomas Novosad
  * VSB-TUO, Faculty of Electrical Engineering and Computer Science
  *
  * This program is free software: you can redistribute it and/or modify

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2025  Tomas Novosad
+ * VSB-TUO, Faculty of Electrical Engineering and Computer Science
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package cz.vsb.genetics.coverage.main;
 
 import cz.vsb.genetics.common.ChromosomeRegion;
@@ -246,7 +264,7 @@ public class BionanoHtsCoverage {
 
         List<ChromosomeRegion> regions = getChromosomeRegions(regionFile);
 
-        if (regions == null || regions.size() == 0) {
+        if (regions.isEmpty()) {
             log.info("No contigs / regions found - cannot calculate coverage statistics");
             return;
         }
@@ -414,7 +432,7 @@ public class BionanoHtsCoverage {
         Map<ChromosomeRegion, List<CoverageInfo>> coverageInfosHts = getCoverageInfoHts(bams, regions, threads, htsSamplingStep, mappingQuality);
         Map<ChromosomeRegion, CoverageInfo> coverageInfosOm = getCoverageInfoOm(cmapReference, cmapQuery, xmap, regions, bionanoSamplingStep);
 
-        if (coverageInfosHts.size() == 0 && coverageInfosOm.size() == 0) {
+        if (coverageInfosHts.isEmpty() && coverageInfosOm.isEmpty()) {
             exitError("Missing arguments for coverage calculation. Probably some of bam, bai, cmap, xmap or region file arguments missing.");
         }
 
@@ -471,7 +489,7 @@ public class BionanoHtsCoverage {
 
     private Map<ChromosomeRegion, List<CoverageInfo>> getCoverageInfoHts(String[] bams, List<ChromosomeRegion> regions,
                                                                          int threads, int samplingSize, int mappingQuality) throws Exception {
-        if (bams.length == 0 || regions == null || regions.size() == 0)
+        if (bams.length == 0 || regions == null || regions.isEmpty())
             return Collections.emptyMap();
 
         Map<ChromosomeRegion, List<CoverageInfo>> coverages = new HashMap<>();
@@ -516,7 +534,7 @@ public class BionanoHtsCoverage {
     }
 
     private Map<ChromosomeRegion, CoverageInfo> getCoverageInfoOm(String cmapRef, String cmapQry, String xmap, List<ChromosomeRegion> regions, int samplingSize) throws Exception {
-        if (StringUtils.isBlank(cmapRef) || StringUtils.isBlank(cmapQry) || StringUtils.isBlank(xmap) || regions == null || regions.size() == 0)
+        if (StringUtils.isBlank(cmapRef) || StringUtils.isBlank(cmapQry) || StringUtils.isBlank(xmap) || regions == null || regions.isEmpty())
             return Collections.emptyMap();
 
         try (CoverageCalculator coverageCalculator = new BionanoCoverageCalculator(cmapRef, cmapQry, xmap)) {

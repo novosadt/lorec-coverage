@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2025  Tomas Novosad
+ * VSB-TUO, Faculty of Electrical Engineering and Computer Science
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 package cz.vsb.genetics.coverage.main;
 
 import com.itextpdf.awt.DefaultFontMapper;
@@ -18,6 +37,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 public class ImageWriter {
     public static void saveImage(String outputFile, JFreeChart chart, int width, int height, ImageFormat format) throws Exception {
@@ -61,7 +81,7 @@ public class ImageWriter {
         Rectangle2D rectangle2D = new Rectangle2D.Double(0, 0, width, height);
         chart.draw(svgGenerator, rectangle2D);
 
-        Writer out = new OutputStreamWriter(new FileOutputStream(outputFile), "UTF-8");
+        Writer out = new OutputStreamWriter(new FileOutputStream(outputFile), StandardCharsets.UTF_8);
         svgGenerator.stream(out, true);
         out.close();
     }
