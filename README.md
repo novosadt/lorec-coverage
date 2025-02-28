@@ -18,31 +18,31 @@ This tool is available as a platform-independent CLI application and is part of 
 Java Runtime Environment 8 or higher.
 
 ## Command line arguments
-| Parameter | Long                    | Type     | Default   | Description                                                                                               |
-|-----------|-------------------------|----------|-----------|-----------------------------------------------------------------------------------------------------------|
-| -cmap_q   | --bionano_cmap_qry      | String   |           | Bionano Genomics analysis pipeline result cmap query file path.                                           |
-| -cmap_r   | --bionano_cmap_ref      | String   |           | Bionano Genomics analysis pipeline result cmap reference file path.                                       |
-| -xmap     | --bionano_xmap          | String   |           | Bionano Genomics analysis pipeline result xmap file path.                                                 |
-| -bss      | --bionano_sampling_step | Integer  | 10        | Number of marks used for Bionano optical maps sampling.                                                   |
-| -bam      | --hts_bam               | String   |           | Binary alignment and map file path. BAM index file (BAI) must right next to BAM file.                     |
-| -hss      | --hts_sampling_step     | Integer  | 100       | Region size (number of bases) used for HTS (BAM) sampling.                                                |
-| -t        | --threads               | Integer  | 1         | Number of threads used for parallel coverage calculation.                                                 |
-| -mq       | --mapping_quality       | Integer  | 0         | Minimum read mapping quality filter - BAM only.                                                           |
-| -hcl      | --coverage_limit_hts    | Integer  |           | Coverage limit for plotting of HTS data (BAM) (maximum y axis value).                                     |
-| -bcl      | --coverage_limit_om     | Integer  |           | Coverage limit for plotting Bionano optical maps (maximum y axis value).                                  |
-| -r        | --region                | String   |           | Chromosomal region of interest (e.g. chr1:1-1000).                                                        |
-| -rf       | --region                | String   |           | File with chromosomal regions of interest in format: contig_name region (e.g. TP53 chr17:7571739-7590808) |
-| -ti       | --title                 | String   |           | Plot/Image title.                                                                                         |
-| -st       | --sampling_type         | String   | random    | Sampling type [random \| mean \| median \| none].                                                         |
-| -pt       | --plot_type             | String   | histogram | Plot/Chart type [histogram \| line \|spline].                                                             |
-| -si       | --single_image          | String   |           | Whether to plot HTS and OM coverage information in single image.                                          |
-| -stats    | --statistics            | String   |           | File path for statistics calculated for region file (--rf) (min, q1, median, q3, max)                     |
-| -img      | --output_img            | String   |           | Output joint OM/HGS coverage plot file path.                                                              |
-| -img_hts  | --output_hts_img        | String   |           | Output HTS coverage plot file path.                                                                       |
-| -img_om   | --output_om_img         | String   |           | Output OM coverage plot file path.                                                                        |
-| -od       | --output_dir            | String   |           | Output directory for OM/WGS coverage plots.                                                               |
-| -sn       | --sample_name           | String   |           | Sample name for prefixing OM/WGS coverage plot titles and image names.                                    |
-| -of       | --output_format         | String   | png       | Output image format [jpg \| png \| pdf \| svg].                                                           |             |
+| Parameter | Long                    | Type     | Default   | Description                                                                                                   |
+|-----------|-------------------------|----------|-----------|---------------------------------------------------------------------------------------------------------------|
+| -cmap_q   | --bionano_cmap_qry      | String   |           | Bionano Genomics analysis pipeline result cmap query file path.                                               |
+| -cmap_r   | --bionano_cmap_ref      | String   |           | Bionano Genomics analysis pipeline result cmap reference file path.                                           |
+| -xmap     | --bionano_xmap          | String   |           | Bionano Genomics analysis pipeline result xmap file path.                                                     |
+| -bss      | --bionano_sampling_step | Integer  | 10        | Number of marks used for Bionano optical maps sampling.                                                       |
+| -bam      | --hts_bam               | String   |           | Binary alignment and map files path separated by semicolon. BAM index file (BAI) must right next to BAM file. |
+| -hss      | --hts_sampling_step     | Integer  | 100       | Region size (number of bases) used for HTS (BAM) sampling.                                                    |
+| -t        | --threads               | Integer  | 1         | Number of threads used for parallel coverage calculation.                                                     |
+| -mq       | --mapping_quality       | Integer  | 0         | Minimum read mapping quality filter - BAM only.                                                               |
+| -hcl      | --coverage_limit_hts    | Integer  |           | Coverage limit for plotting of HTS data (BAM) (maximum y axis value).                                         |
+| -bcl      | --coverage_limit_om     | Integer  |           | Coverage limit for plotting Bionano optical maps (maximum y axis value).                                      |
+| -r        | --region                | String   |           | Chromosomal region of interest (e.g. chr1:1-1000).                                                            |
+| -rf       | --region                | String   |           | File with chromosomal regions of interest in format: contig_name region (e.g. TP53 chr17:7571739-7590808)     |
+| -ti       | --title                 | String   |           | Plot/Image title.                                                                                             |
+| -st       | --sampling_type         | String   | random    | Sampling type [random \| mean \| median \| none].                                                             |
+| -pt       | --plot_type             | String   | histogram | Plot/Chart type [histogram \| line \|spline].                                                                 |
+| -si       | --single_image          | String   |           | Whether to plot HTS and OM coverage information in single image.                                              |
+| -stats    | --statistics            | String   |           | File path for statistics calculated for region file (--rf) (min, q1, median, q3, max)                         |
+| -img      | --output_img            | String   |           | Output joint OM/HGS coverage plot file path.                                                                  |
+| -img_hts  | --output_hts_img        | String   |           | Output HTS coverage plot file path.                                                                           |
+| -img_om   | --output_om_img         | String   |           | Output OM coverage plot file path.                                                                            |
+| -od       | --output_dir            | String   |           | Output directory for OM/WGS coverage plots.                                                                   |
+| -sn       | --sample_name           | String   |           | Sample name for prefixing OM/WGS coverage plot titles and image names.                                        |
+| -of       | --output_format         | String   | png       | Output image format [jpg \| png \| pdf \| svg].                                                               |             |
 
 
 ## Example of usage
