@@ -62,10 +62,17 @@ public class OmHtsCoverage {
     private static final String ARG_OUTPUT_DIR = "output_dir";
     private static final String ARG_OUTPUT_FORMAT = "output_format";
     private static final String ARG_SAMPLE_NAME = "sample_name";
+    private static final String ARG_HELP = "help";
 
 
     public static void main(String[] args) {
-        CommandLine cmd = getCommandLine(args);
+        Options options = new Options();
+        CommandLine cmd = getCommandLine(args, options);
+
+        if (cmd.hasOption(ARG_HELP)) {
+            printUsage("Help:", options);
+            System.exit(0);
+        }
 
         String bam = cmd.hasOption(ARG_HTS_BAM) ? cmd.getOptionValue(ARG_HTS_BAM) : null;
         String xmap = cmd.hasOption(ARG_BIONANO_XMAP) ? cmd.getOptionValue(ARG_BIONANO_XMAP) : null;
@@ -74,7 +81,8 @@ public class OmHtsCoverage {
         ImageFormat imageFormat = ImageFormat.of(cmd.getOptionValue(ARG_OUTPUT_FORMAT));
 
         if (!(StringUtils.isNoneBlank(bam) || StringUtils.isNoneBlank(xmap, cmapQuery, cmapReference))) {
-            log.error("At least, bam and bai or xmap, query cmap and reference cmap must be specified.");
+            printUsage("At least, one bam or xmap, query cmap and reference cmap must be specified.", options);
+
             System.exit(1);
         }
 
@@ -100,9 +108,7 @@ public class OmHtsCoverage {
         }
     }
 
-    private static CommandLine getCommandLine(String[] args) {
-        Options options = new Options();
-
+    private static CommandLine getCommandLine(String[] args, Options options) {
         Option bionanoCmapQry = new Option("cmap_q", ARG_BIONANO_CMAP_QRY, true, "bionano cmap query file");
         bionanoCmapQry.setArgName("cmap file");
         bionanoCmapQry.setType(String.class);
@@ -123,7 +129,7 @@ public class OmHtsCoverage {
         bionanoSamplingStep.setType(Integer.class);
         options.addOption(bionanoSamplingStep);
 
-        Option htsBam = new Option("bam", ARG_HTS_BAM, true, "hts bam file (index file bai must be right next to bam file");
+        Option htsBam = new Option("bam", ARG_HTS_BAM, true, "hts bam files separated by semicolon (bai index files must be right next to bam files");
         htsBam.setArgName("bam file");
         htsBam.setType(String.class);
         options.addOption(htsBam);
@@ -217,30 +223,40 @@ public class OmHtsCoverage {
         outputFormat.setType(String.class);
         options.addOption(outputFormat);
 
+        Option help = new Option("h", ARG_HELP, false, "Display this help message.");
+        help.setArgName("Help");
+        options.addOption(help);
+
         CommandLineParser parser = new DefaultParser();
-        HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
 
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
-            System.out.println("\nSVC - Bionano Genomics (OM) and HTS coverage plot tool, v" + version() + "\n");
-            System.out.println(e.getMessage());
-            System.out.println();
-            formatter.printHelp(
-                    300,
-                    "\njava -jar om-hts-coverage.jar ",
-                    "\noptions:",
-                    options,
-                    "\nTomas Novosad, VSB-TU Ostrava, 2023" +
-                            "\nFEI, Department of Computer Science" +
-                            "\nVersion: " + version() +
-                            "\nLicense: GPL-3.0-only ");
+            printUsage(e.getMessage(), options);
 
             System.exit(1);
         }
 
         return cmd;
+    }
+
+    private static void printUsage(String message, Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+
+        System.out.println("\nSVC - Bionano Genomics (OM) and HTS coverage plot tool, v" + version() + "\n");
+        System.out.println(message);
+        System.out.println();
+
+        formatter.printHelp(
+                300,
+                "\njava -jar om-hts-coverage.jar ",
+                "\noptions:",
+                options,
+                "\nTomas Novosad, VSB-TU Ostrava, 2023" +
+                        "\nFEI, Department of Computer Science" +
+                        "\nVersion: " + version() +
+                        "\nLicense: GPL-3.0-only ");
     }
 
     private static String version() {
