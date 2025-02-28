@@ -36,8 +36,8 @@ import java.io.*;
 import java.util.List;
 import java.util.*;
 
-public class BionanoHtsCoverage {
-    private static final Logger log = LoggerFactory.getLogger(BionanoHtsCoverage.class);
+public class OmHtsCoverage {
+    private static final Logger log = LoggerFactory.getLogger(OmHtsCoverage.class);
 
     private static final String ARG_BIONANO_CMAP_REF = "bionano_cmap_ref";
     private static final String ARG_BIONANO_CMAP_QRY = "bionano_cmap_qry";
@@ -74,12 +74,12 @@ public class BionanoHtsCoverage {
         ImageFormat imageFormat = ImageFormat.of(cmd.getOptionValue(ARG_OUTPUT_FORMAT));
 
         if (!(StringUtils.isNoneBlank(bam) || StringUtils.isNoneBlank(xmap, cmapQuery, cmapReference))) {
-            log.error("At least, bam and bai or xmap, cmap query and cmap reference must be defined.");
+            log.error("At least, bam and bai or xmap, query cmap and reference cmap must be specified.");
             System.exit(1);
         }
 
         try {
-            BionanoHtsCoverage coverage = new BionanoHtsCoverage();
+            OmHtsCoverage coverage = new OmHtsCoverage();
 
             String[] bams = bam.split(";");
 
@@ -123,7 +123,7 @@ public class BionanoHtsCoverage {
         bionanoSamplingStep.setType(Integer.class);
         options.addOption(bionanoSamplingStep);
 
-        Option htsBam = new Option("bam", ARG_HTS_BAM, true, "hts bam file");
+        Option htsBam = new Option("bam", ARG_HTS_BAM, true, "hts bam file (index file bai must be right next to bam file");
         htsBam.setArgName("bam file");
         htsBam.setType(String.class);
         options.addOption(htsBam);
@@ -158,7 +158,7 @@ public class BionanoHtsCoverage {
         region.setType(String.class);
         options.addOption(region);
 
-        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest (contig_name region");
+        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest in format: contig_name region (e.g. TP53 chr17:7571739-7590808)");
         regionFile.setArgName("chromosomal regions file");
         regionFile.setType(String.class);
         options.addOption(regionFile);
@@ -182,22 +182,22 @@ public class BionanoHtsCoverage {
         singleImage.setArgName("single image");
         options.addOption(singleImage);
 
-        Option statistics = new Option("stats", ARG_STATISTICS, true, "calculate coverage statistics for region file (min, q1, median, q3, max, median)");
+        Option statistics = new Option("stats", ARG_STATISTICS, true, "calculate coverage statistics for region file (min, q1, median, q3, max)");
         statistics.setArgName("statistics output file");
         statistics.setType(String.class);
         options.addOption(statistics);
 
-        Option outputHtsImg = new Option("img_hts", ARG_OUTPUT_HTS_IMG, true, "output HTS coverage plot");
+        Option outputHtsImg = new Option("img_hts", ARG_OUTPUT_HTS_IMG, true, "output HTS coverage plot file path");
         outputHtsImg.setArgName("hts coverage image");
         outputHtsImg.setType(String.class);
         options.addOption(outputHtsImg);
 
-        Option outputOmImg = new Option("img_om", ARG_OUTPUT_OM_IMG, true, "output OM coverage plot");
+        Option outputOmImg = new Option("img_om", ARG_OUTPUT_OM_IMG, true, "output OM coverage plot file path");
         outputOmImg.setArgName("om coverage image");
         outputOmImg.setType(String.class);
         options.addOption(outputOmImg);
 
-        Option outputImg = new Option("img", ARG_OUTPUT_IMG, true, "output OM/WGS coverage plot");
+        Option outputImg = new Option("img", ARG_OUTPUT_IMG, true, "output OM/WGS coverage plot file path");
         outputImg.setArgName("joint hts/om coverage image");
         outputImg.setType(String.class);
         options.addOption(outputImg);
@@ -247,7 +247,7 @@ public class BionanoHtsCoverage {
         final Properties properties = new Properties();
 
         try {
-            properties.load(BionanoHtsCoverage.class.getClassLoader().getResourceAsStream("project.properties"));
+            properties.load(OmHtsCoverage.class.getClassLoader().getResourceAsStream("project.properties"));
         }
         catch (Exception e) {
             log.error(e.getMessage(), e);
