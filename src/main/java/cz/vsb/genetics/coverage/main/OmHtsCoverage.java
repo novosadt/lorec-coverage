@@ -253,7 +253,7 @@ public class OmHtsCoverage {
                 "\njava -jar om-hts-coverage.jar ",
                 "\noptions:",
                 options,
-                "\nTomas Novosad, VSB-TU Ostrava, 2023" +
+                "\nTomas Novosad, VSB-TU Ostrava, 2025" +
                         "\nFEI, Department of Computer Science" +
                         "\nVersion: " + version() +
                         "\nLicense: GPL-3.0-only ");
