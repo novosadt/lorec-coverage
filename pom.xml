@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cz.vsb.genetics</groupId>
-    <artifactId>om-hts-coverage</artifactId>
+    <artifactId>lorec-coverage</artifactId>
     <description>Optical Mapping and High-Through-Put (HTS) coverage comparison tool</description>
     <version>1.0</version>
     <name>om-hts-coverage</name>
