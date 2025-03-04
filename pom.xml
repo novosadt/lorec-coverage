@@ -8,7 +8,7 @@
     <artifactId>lorec-coverage</artifactId>
     <description>Optical Mapping and High-Through-Put (HTS) coverage comparison tool</description>
     <version>1.0</version>
-    <name>om-hts-coverage</name>
+    <name>lorec-coverage</name>
 
     <properties>
         <java.version>8</java.version>
