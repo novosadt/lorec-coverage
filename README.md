@@ -52,22 +52,22 @@ Some basic example usage of structural variant comparator follows. More detailed
 In basic setup, application creates coverage plot for given sequencing input files. No filters are applied here.
 
 ```console
-java -jar om-hts-coverage.jar -cmap_q /home/lorec/coverage/om_query.cmap -cmap_r /home/lorec/coverage/om_ref.cmap -xmap /home/lorec/coverage/om.xmap -title "Optical Map" -img_om /home/lorec/coverage/om.png
-java -jar om-hts-coverage.jar -bam /home/lorec/coverage/hts.bam -title "High-Througput Sequeincing" -img_hts /home/lorec/coverage/hts.png
+java -jar lorec-coverage.jar -cmap_q /home/lorec/coverage/om_query.cmap -cmap_r /home/lorec/coverage/om_ref.cmap -xmap /home/lorec/coverage/om.xmap -title "Optical Map" -img_om /home/lorec/coverage/om.png
+java -jar lorec-coverage.jar -bam /home/lorec/coverage/hts.bam -title "High-Througput Sequeincing" -img_hts /home/lorec/coverage/hts.png
 ```
 
 ### Statistics
 Following command calculates minimum, Q1, Median, Q3, Maximum coverage statistics for given sequencing input data.
 
 ```consolev
-java -jar om-hts-coverage.jar -bam /home/lorec/coverage/hts.bam -stats /home/lorec/coverage/hts-statistics.png 
+java -jar lorec-coverage.jar -bam /home/lorec/coverage/hts.bam -stats /home/lorec/coverage/hts-statistics.png 
 ```
 
 ### Multiple coverage plot based on region file
 Following command creates coverage plots based on region file and save images with given prefix (sample name) to specified output folder
 
 ```console
-java -jar om-hts-coverage.jar -bam /home/lorec/coverage/hts.bam -title "High-Througput Sequeincing" -sn "james_smith" -rf /home/lorec/coverage/james_smith_regions.txt -od /home/lorec/coverage/hts 
+java -jar lorec-coverage.jar -bam /home/lorec/coverage/hts.bam -title "High-Througput Sequeincing" -sn "james_smith" -rf /home/lorec/coverage/james_smith_regions.txt -od /home/lorec/coverage/hts 
 ```
 
 ## Contact
