@@ -36,8 +36,8 @@ import java.io.*;
 import java.util.List;
 import java.util.*;
 
-public class OmHtsCoverage {
-    private static final Logger log = LoggerFactory.getLogger(OmHtsCoverage.class);
+public class LoReCCoverage {
+    private static final Logger log = LoggerFactory.getLogger(LoReCCoverage.class);
 
     private static final String ARG_BIONANO_CMAP_REF = "bionano_cmap_ref";
     private static final String ARG_BIONANO_CMAP_QRY = "bionano_cmap_qry";
@@ -87,7 +87,7 @@ public class OmHtsCoverage {
         }
 
         try {
-            OmHtsCoverage coverage = new OmHtsCoverage();
+            LoReCCoverage coverage = new LoReCCoverage();
 
             String[] bams = bam.split(";");
 
@@ -244,13 +244,13 @@ public class OmHtsCoverage {
     private static void printUsage(String message, Options options) {
         HelpFormatter formatter = new HelpFormatter();
 
-        System.out.println("\nSVC - Bionano Genomics (OM) and HTS coverage plot tool, v" + version() + "\n");
+        System.out.println("\nLoReC Coverage - long read coverage plot tool, v" + version() + "\n");
         System.out.println(message);
         System.out.println();
 
         formatter.printHelp(
                 300,
-                "\njava -jar om-hts-coverage.jar ",
+                "\njava -jar lorec-coverage.jar ",
                 "\noptions:",
                 options,
                 "\nTomas Novosad, VSB-TU Ostrava, 2025" +
@@ -263,7 +263,7 @@ public class OmHtsCoverage {
         final Properties properties = new Properties();
 
         try {
-            properties.load(OmHtsCoverage.class.getClassLoader().getResourceAsStream("project.properties"));
+            properties.load(LoReCCoverage.class.getClassLoader().getResourceAsStream("project.properties"));
         }
         catch (Exception e) {
             log.error(e.getMessage(), e);
