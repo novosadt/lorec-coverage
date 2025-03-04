@@ -6,7 +6,7 @@
 
     <groupId>cz.vsb.genetics</groupId>
     <artifactId>lorec-coverage</artifactId>
-    <description>Optical Mapping and High-Through-Put (HTS) coverage comparison tool</description>
+    <description>LoReC - optical mapping, high-throughput and long read coverage comparison tool</description>
     <version>1.0</version>
     <name>lorec-coverage</name>
 
