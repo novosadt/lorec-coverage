@@ -1,4 +1,4 @@
-# om-hts-coverage: Optical Mapping and High-Through-Put (HTS) coverage comparison tool - part of LoReC
+# LoReC - Coverage: Optical Mapping and High-Through-Put (HTS) coverage comparison tool
 
 This software tool is designed for the visual comparison of sequencing data produced by various whole genome sequencing 
 technologies, based on coverage calculation. It can also calculate various coverage statistics for the given input data.
