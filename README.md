@@ -1,15 +1,10 @@
-# LoReC - Coverage: long read, high-throughput sequencing and optical mapping coverage comparison tool 
+# LoReC - Coverage 
 
-This software tool is designed for the visual comparison of sequencing data produced by various whole genome sequencing 
-technologies, based on coverage calculation. It can also calculate various coverage statistics for the given input data.
+### LoReC – Coverage is a part of LoReC (Long-Read-Checker) toolkit.
 
-The tool generates coverage charts calculated from either the standard Sequence/Binary Alignment and Map format (SAM/BAM) 
-with an index file (BAI), or from Bionano Genomics optical mapping technology. In the case of optical mapping, coverage 
-information is calculated from the location of label sites within a genome map (CMAP) and through cross-comparison 
-between the query and reference CMAP (XMAP).
+LoReC – Coverage tool enables to analyse coverage depths of structural variants (SVs) or regions/genes of interest from long-read-sequencing (LRS) datasets obtained by all available technologies as well as short-read sequencing (SRS) datasets and optical genome mapping (OGM). The tool generates coverage statistics (min, max, Q1, Q3, mean, median) and/or coverage plots based on either the Binary Alignment Map (BAM) file(s) or OGM mapping files (CMAP, XMAP).
 
 This tool is available as a platform-independent CLI application and is part of the Long-Read-Checker (LoReC) toolkit.
-
 
 ## Current stable version
 <b>Current stable version is 1.0 - branch 1.0.</b> Main/master branch is dedicated for further development and should not be used in production environment.
