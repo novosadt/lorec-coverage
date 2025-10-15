@@ -26,7 +26,7 @@ Java Runtime Environment 8 or higher.
 | -hcl      | --coverage_limit_hts    | Integer  |           | Coverage limit for plotting of HTS data (BAM) (maximum y axis value).                                         |
 | -bcl      | --coverage_limit_om     | Integer  |           | Coverage limit for plotting Bionano optical maps (maximum y axis value).                                      |
 | -r        | --region                | String   |           | Chromosomal region of interest (e.g. chr1:1-1000).                                                            |
-| -rf       | --region                | String   |           | File with chromosomal regions of interest in format: contig_name region (e.g. TP53 chr17:7571739-7590808)     |
+| -rf       | --region_file           | String   |           | File with chromosomal regions of interest in format: contig_name region (e.g. TP53 chr17:7571739-7590808)     |
 | -ti       | --title                 | String   |           | Plot/Image title.                                                                                             |
 | -st       | --sampling_type         | String   | random    | Sampling type [random \| mean \| median \| none].                                                             |
 | -pt       | --plot_type             | String   | histogram | Plot/Chart type [histogram \| line \|spline].                                                                 |
