@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.*;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 public class LoReCCoverage {
     private static final Logger log = LoggerFactory.getLogger(LoReCCoverage.class);
@@ -49,6 +49,7 @@ public class LoReCCoverage {
     private static final String ARG_MAPPING_QUALITY = "mapping_quality";
     private static final String ARG_REGION = "region";
     private static final String ARG_REGION_FILE = "region_file";
+    private static final String ARG_ANNOTATION_FILE = "annotation_file";
     private static final String ARG_STATISTICS = "statistics";
     private static final String ARG_TITLE = "title";
     private static final String ARG_SAMPLING_TYPE = "sampling_type";
@@ -164,10 +165,15 @@ public class LoReCCoverage {
         region.setType(String.class);
         options.addOption(region);
 
-        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest in format: contig_name region (e.g. TP53 chr17:7571739-7590808)");
+        Option regionFile = new Option("rf", ARG_REGION_FILE, true, "file with chromosomal regions of interest in format (tab delimited): region contig_name (e.g. chr17:7571739-7590808 TP53)");
         regionFile.setArgName("chromosomal regions file");
         regionFile.setType(String.class);
         options.addOption(regionFile);
+
+        Option annotationFile = new Option("af", ARG_ANNOTATION_FILE, true, "file with chromosomal regions annotations in format (tab delimited): region annotation_1 annotation2 (e.g. chr17:7571739-7590808 TP53 protein_coding");
+        annotationFile.setArgName("chromosomal regions annotation file");
+        annotationFile.setType(String.class);
+        options.addOption(annotationFile);
 
         Option title = new Option("ti", ARG_TITLE, true, "plot title");
         title.setArgName("title");
@@ -287,6 +293,8 @@ public class LoReCCoverage {
 
         Map<ChromosomeRegion, List<CoverageInfo>> coverageInfosHts = null;
         Map<ChromosomeRegion, CoverageInfo> coverageInfosOm = null;
+        Map<ChromosomeRegion, List<RegionAnnotation>> annotations = null;
+        String[] annotationHeaders = null;
 
         if (bams != null && bams.length > 0)
             coverageInfosHts = getCoverageInfoHts(bams, regions, threads, 0, mappingQuality);
@@ -294,33 +302,26 @@ public class LoReCCoverage {
         if (StringUtils.isNotBlank(cmapReference) && StringUtils.isNotBlank(cmapQuery) && StringUtils.isNotBlank(xmap))
             coverageInfosOm = getCoverageInfoOm(cmapReference, cmapQuery, xmap, regions, 0);
 
+        if (cmd.hasOption(ARG_ANNOTATION_FILE)) {
+            String annotationFile = cmd.getOptionValue(ARG_ANNOTATION_FILE);
+            annotations = getAnnotations(annotationFile, regions);
+            annotationHeaders = getAnnotationHeaders(annotationFile);
+        }
+
         String format = "\t%d\t%d\t%d\t%d\t%d\t%d\t%d";
         CoverageStatistics stats = new CoverageStatistics();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputStats))) {
-            writer.write(getStatisticsHeader(coverageInfosOm != null, bams));
+            writer.write(getStatisticsHeader(coverageInfosOm != null, bams, annotationHeaders));
 
             for (int i = 0; i < regions.size(); i++) {
                 ChromosomeRegion region = regions.get(i);
                 log.info(String.format("Calculating statistics for: %s - %s... %d/%d\n", region.getName(), region, i + 1, coverageInfosHts.size()));
                 String out = String.format("%s\t%s\t%d", region.getName(), region, region.getLength());
 
-                if (coverageInfosOm != null) {
-                    CoverageInfo coverageInfoOm = coverageInfosOm.get(region);
-
-                    stats.calculateStatistics(coverageInfoOm);
-                    out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
-                    out += "\t" + coverageInfoOm.getSiteCount();
-                }
-
-                if (coverageInfosHts != null) {
-                    List<CoverageInfo> coverageInfoHts = coverageInfosHts.get(region);
-
-                    for (CoverageInfo coverageInfo : coverageInfoHts) {
-                        stats.calculateStatistics(coverageInfo);
-                        out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
-                    }
-                }
+                out = getCoverageInfoOm(coverageInfosOm, region, stats, out, format);
+                out = getCoverageInfoHts(coverageInfosHts, region, stats, out, format);
+                out = addRegionAnnotation(annotations, region, out);
 
                 out += "\n";
 
@@ -328,37 +329,40 @@ public class LoReCCoverage {
             }
         }
     }
-    
-    private String getStatisticsHeader(boolean isOm, String[] bams) {
-        String header = 
+
+    private String getStatisticsHeader(boolean isOm, String[] bams, String[] annotations) {
+        String header =
                 "contig_name\t" +
-                "region\t" + 
-                "length";
+                        "region\t" +
+                        "length";
 
         if (isOm) {
             header +=
                     "\tom_min" +
-                    "\tom_q1" +
-                    "\tom_median" +
-                    "\tom_q3" +
-                    "\tom_max" +
-                    "\tom_mean" +
-                    "\tom_stddev" +
-                    "\tom_site_count";
+                            "\tom_q1" +
+                            "\tom_median" +
+                            "\tom_q3" +
+                            "\tom_max" +
+                            "\tom_mean" +
+                            "\tom_stddev" +
+                            "\tom_site_count";
         }
 
-        
         for (String bam : bams) {
             String name = getHtsCoverageInfoName(bam) + "_";
-            
+
             header +=
                     "\t" + name + "_min" +
-                    "\t" + name + "_q1" +
-                    "\t" + name + "_median" +
-                    "\t" + name + "_q3" +
-                    "\t" + name + "_max" +
-                    "\t" + name + "_mean" +
-                    "\t" + name + "_stddev";
+                            "\t" + name + "_q1" +
+                            "\t" + name + "_median" +
+                            "\t" + name + "_q3" +
+                            "\t" + name + "_max" +
+                            "\t" + name + "_mean" +
+                            "\t" + name + "_stddev";
+        }
+
+        if (annotations != null) {
+            header += "\t" + StringUtils.join(Arrays.asList(Arrays.copyOfRange(annotations, 1, annotations.length)), "\t");
         }
 
         header += "\n";
@@ -366,7 +370,36 @@ public class LoReCCoverage {
         return header;
     }
 
+    private static String getCoverageInfoOm(Map<ChromosomeRegion, CoverageInfo> coverageInfosOm, ChromosomeRegion region, CoverageStatistics stats, String out, String format) {
+        if (coverageInfosOm != null) {
+            CoverageInfo coverageInfoOm = coverageInfosOm.get(region);
+
+            stats.calculateStatistics(coverageInfoOm);
+            out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
+            out += "\t" + coverageInfoOm.getSiteCount();
+        }
+
+        return out;
+    }
+
+    private static String getCoverageInfoHts(Map<ChromosomeRegion, List<CoverageInfo>> coverageInfosHts, ChromosomeRegion region, CoverageStatistics stats, String out, String format) {
+        if (coverageInfosHts != null) {
+            List<CoverageInfo> coverageInfoHts = coverageInfosHts.get(region);
+
+            for (CoverageInfo coverageInfo : coverageInfoHts) {
+                stats.calculateStatistics(coverageInfo);
+                out += String.format(format, stats.min(), stats.q1(), stats.median(), stats.q3(), stats.max(), stats.mean(), stats.standardDeviation());
+            }
+        }
+
+        return out;
+    }
+
     private List<ChromosomeRegion> getChromosomeRegions(String regionFile) throws IOException {
+        if (StringUtils.isBlank(regionFile) || !new File(regionFile).exists()) {
+            exitError("Region file not found: " + regionFile);
+        }
+
         List<ChromosomeRegion> regions = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(regionFile))) {
             String line;
@@ -378,7 +411,7 @@ public class LoReCCoverage {
                     continue;
                 }
 
-                ChromosomeRegion region = values.length == 1 ? ChromosomeRegion.valueOf(values[0]) : ChromosomeRegion.valueOf(values[1]);
+                ChromosomeRegion region = ChromosomeRegion.valueOf(values[0]);
 
                 if (region == null) {
                     logError("Invalid region: " + line);
@@ -386,12 +419,98 @@ public class LoReCCoverage {
                 }
 
                 if (values.length > 1)
-                    region.setName(values[0]);
+                    region.setName(values[1]);
 
                 regions.add(region);
             }
         }
         return regions;
+    }
+
+    private Map<ChromosomeRegion, List<RegionAnnotation>> getAnnotations(String annotationFile, List<ChromosomeRegion> regions) throws IOException {
+        if (StringUtils.isBlank(annotationFile) || !new File(annotationFile).exists()) {
+            exitError("Annotation file not found: " + annotationFile);
+        }
+
+        Map<ChromosomeRegion, RegionAnnotation> annotations = new LinkedHashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(annotationFile))) {
+            List<String> headers = Arrays.asList(reader.readLine().split("\t"));
+            String line;
+
+            while((line = reader.readLine()) != null) {
+                String[] values = line.split("\t");
+
+                if (values.length < 1) {
+                    logError("Invalid line: " + line);
+                    continue;
+                }
+
+                ChromosomeRegion region = ChromosomeRegion.valueOf(values[0]);
+
+                if (region == null) {
+                    logError("Invalid region: " + line);
+                    continue;
+                }
+
+                if (headers.size() != values.length) {
+                    exitError("Annotation file - Number of annotations differs from headers. Line: " + line);
+                }
+
+                RegionAnnotation annotation = new RegionAnnotation();
+                annotation.setRegion(region);
+                annotation.setAnnotations(Arrays.asList(Arrays.copyOfRange(values, 1, values.length)));
+
+                annotations.put(region, annotation);
+            }
+        }
+
+        Map<ChromosomeRegion, List<RegionAnnotation>> result = new LinkedHashMap<>();
+
+        for (ChromosomeRegion region : regions) {
+            List<RegionAnnotation> regionAnnotations = new ArrayList<>();
+            for (ChromosomeRegion annotationRegion : annotations.keySet()) {
+                if (region.intersection(annotationRegion) > 0.0)
+                    regionAnnotations.add(annotations.get(annotationRegion));
+            }
+
+            result.put(region, regionAnnotations);
+        }
+
+        return result;
+    }
+
+    private String addRegionAnnotation(Map<ChromosomeRegion, List<RegionAnnotation>> annotations, ChromosomeRegion region, String out) {
+        if (annotations != null) {
+            List<RegionAnnotation> regionAnnotations = annotations.get(region);
+
+            List<String> annotationItems = new ArrayList<>();
+
+            for (int i = 0; i < regionAnnotations.get(0).getAnnotations().size(); i++) {
+                StringBuilder sb = new StringBuilder();
+                for (RegionAnnotation regionAnnotation : regionAnnotations)
+                    sb.append(regionAnnotation.getAnnotations().get(i) + "|");
+                annotationItems.add(StringUtils.chop(sb.toString()));
+            }
+
+            out += "\t" + StringUtils.join(annotationItems, "\t");
+        }
+
+        return out;
+    }
+
+    private String[] getAnnotationHeaders(String annotationFile) throws IOException {
+        if (StringUtils.isBlank(annotationFile) || !new File(annotationFile).exists()) {
+            exitError("Annotation file not found: " + annotationFile);
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(annotationFile))) {
+            String line = reader.readLine();
+
+            if (StringUtils.isBlank(line))
+                exitError("Annotation file - missing header row");
+
+            return line.split("\t");
+        }
     }
 
     private void plotCoverage(String[] bams, String cmapReference, String cmapQuery, String xmap, ImageFormat imageFormat, CommandLine cmd) throws Exception {
@@ -597,7 +716,7 @@ public class LoReCCoverage {
     
     private void exitError(String message) {
         if (StringUtils.isNoneBlank(message))
-            log.error(message);
+            log.error(message + "\n");
         
         System.exit(1);
     }
