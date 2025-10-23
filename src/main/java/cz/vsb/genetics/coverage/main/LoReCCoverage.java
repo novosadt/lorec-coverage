@@ -170,7 +170,7 @@ public class LoReCCoverage {
         regionFile.setType(String.class);
         options.addOption(regionFile);
 
-        Option annotationFile = new Option("af", ARG_ANNOTATION_FILE, true, "file with chromosomal regions annotations in format (tab delimited): region annotation_1 annotation2 (e.g. chr17:7571739-7590808 TP53 protein_coding");
+        Option annotationFile = new Option("af", ARG_ANNOTATION_FILE, true, "file with chromosomal region annotations in format (tab delimited): region annotation_1 annotation2 (e.g. chr17:7571739-7590808 TP53 protein_coding");
         annotationFile.setArgName("chromosomal regions annotation file");
         annotationFile.setType(String.class);
         options.addOption(annotationFile);
