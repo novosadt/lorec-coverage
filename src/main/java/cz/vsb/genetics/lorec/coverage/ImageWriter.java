@@ -17,7 +17,7 @@
  */
 
 
-package cz.vsb.genetics.coverage.main;
+package cz.vsb.genetics.lorec.coverage;
 
 import com.itextpdf.awt.DefaultFontMapper;
 import com.itextpdf.text.Document;

@@ -17,18 +17,26 @@
  */
 
 
-package cz.vsb.genetics.coverage.main;
+package cz.vsb.genetics.lorec.coverage;
 
-import cz.vsb.genetics.coverage.CoverageInfo;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
+public enum PlotType {
+    HISTOGRAM,
+    LINE,
+    SPLINE,
 
-import java.util.List;
+    ;
 
-public class CoveragePlotXYStepChart extends CoveragePlotBase {
-    protected JFreeChart createChart(String title, String xLabel, String yLabel, SamplingType samplingType, List<CoverageInfo> coverageInfos) {
-        return ChartFactory.createXYStepChart(title, xLabel, yLabel, createDataset(coverageInfos, samplingType),
-                PlotOrientation.VERTICAL, true, true, false);
+    public static PlotType of(String value) {
+        if (value == null)
+            return HISTOGRAM;
+
+        value = value.trim().toLowerCase();
+
+        switch (value) {
+            case "histogram" : return HISTOGRAM;
+            case "line" : return LINE;
+            case "spline" : return SPLINE;
+            default: return HISTOGRAM;
+        }
     }
 }

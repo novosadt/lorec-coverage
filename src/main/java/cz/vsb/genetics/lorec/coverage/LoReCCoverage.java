@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cz.vsb.genetics.coverage.main;
+package cz.vsb.genetics.lorec.coverage;
 
+import cz.vsb.genetics.annotation.RegionAnnotator;
 import cz.vsb.genetics.common.ChromosomeRegion;
 import cz.vsb.genetics.coverage.CoverageCalculator;
 import cz.vsb.genetics.coverage.CoverageInfo;
@@ -293,8 +294,8 @@ public class LoReCCoverage {
 
         Map<ChromosomeRegion, List<CoverageInfo>> coverageInfosHts = null;
         Map<ChromosomeRegion, CoverageInfo> coverageInfosOm = null;
-        Map<ChromosomeRegion, List<RegionAnnotation>> annotations = null;
         String[] annotationHeaders = null;
+        RegionAnnotator regionAnnotator = null;
 
         if (bams != null && bams.length > 0)
             coverageInfosHts = getCoverageInfoHts(bams, regions, threads, 0, mappingQuality);
@@ -304,8 +305,11 @@ public class LoReCCoverage {
 
         if (cmd.hasOption(ARG_ANNOTATION_FILE)) {
             String annotationFile = cmd.getOptionValue(ARG_ANNOTATION_FILE);
-            annotations = getAnnotations(annotationFile, regions);
-            annotationHeaders = getAnnotationHeaders(annotationFile);
+
+            regionAnnotator = new RegionAnnotator();
+            regionAnnotator.loadAnnotations(annotationFile, '\t');
+            regionAnnotator.findRegionAnnotations(regions);
+            annotationHeaders = regionAnnotator.getAnnotationHeaders();
         }
 
         String format = "\t%d\t%d\t%d\t%d\t%d\t%d\t%d";
@@ -321,7 +325,10 @@ public class LoReCCoverage {
 
                 out = getCoverageInfoOm(coverageInfosOm, region, stats, out, format);
                 out = getCoverageInfoHts(coverageInfosHts, region, stats, out, format);
-                out = addRegionAnnotation(annotations, region, out);
+
+                if (regionAnnotator != null) {
+                    out += "\t" + regionAnnotator.regionAnnotationsToString(region, '\t');
+                }
 
                 out += "\n";
 
@@ -362,7 +369,7 @@ public class LoReCCoverage {
         }
 
         if (annotations != null) {
-            header += "\t" + StringUtils.join(Arrays.asList(Arrays.copyOfRange(annotations, 1, annotations.length)), "\t");
+            header += "\t" + StringUtils.join(annotations, "\t");
         }
 
         header += "\n";
@@ -425,92 +432,6 @@ public class LoReCCoverage {
             }
         }
         return regions;
-    }
-
-    private Map<ChromosomeRegion, List<RegionAnnotation>> getAnnotations(String annotationFile, List<ChromosomeRegion> regions) throws IOException {
-        if (StringUtils.isBlank(annotationFile) || !new File(annotationFile).exists()) {
-            exitError("Annotation file not found: " + annotationFile);
-        }
-
-        Map<ChromosomeRegion, RegionAnnotation> annotations = new LinkedHashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(annotationFile))) {
-            List<String> headers = Arrays.asList(reader.readLine().split("\t"));
-            String line;
-
-            while((line = reader.readLine()) != null) {
-                String[] values = line.split("\t");
-
-                if (values.length < 1) {
-                    logError("Invalid line: " + line);
-                    continue;
-                }
-
-                ChromosomeRegion region = ChromosomeRegion.valueOf(values[0]);
-
-                if (region == null) {
-                    logError("Invalid region: " + line);
-                    continue;
-                }
-
-                if (headers.size() != values.length) {
-                    exitError("Annotation file - Number of annotations differs from headers. Line: " + line);
-                }
-
-                RegionAnnotation annotation = new RegionAnnotation();
-                annotation.setRegion(region);
-                annotation.setAnnotations(Arrays.asList(Arrays.copyOfRange(values, 1, values.length)));
-
-                annotations.put(region, annotation);
-            }
-        }
-
-        Map<ChromosomeRegion, List<RegionAnnotation>> result = new LinkedHashMap<>();
-
-        for (ChromosomeRegion region : regions) {
-            List<RegionAnnotation> regionAnnotations = new ArrayList<>();
-            for (ChromosomeRegion annotationRegion : annotations.keySet()) {
-                if (region.intersection(annotationRegion) > 0.0)
-                    regionAnnotations.add(annotations.get(annotationRegion));
-            }
-
-            result.put(region, regionAnnotations);
-        }
-
-        return result;
-    }
-
-    private String addRegionAnnotation(Map<ChromosomeRegion, List<RegionAnnotation>> annotations, ChromosomeRegion region, String out) {
-        if (annotations != null) {
-            List<RegionAnnotation> regionAnnotations = annotations.get(region);
-
-            List<String> annotationItems = new ArrayList<>();
-
-            for (int i = 0; i < regionAnnotations.get(0).getAnnotations().size(); i++) {
-                StringBuilder sb = new StringBuilder();
-                for (RegionAnnotation regionAnnotation : regionAnnotations)
-                    sb.append(regionAnnotation.getAnnotations().get(i) + "|");
-                annotationItems.add(StringUtils.chop(sb.toString()));
-            }
-
-            out += "\t" + StringUtils.join(annotationItems, "\t");
-        }
-
-        return out;
-    }
-
-    private String[] getAnnotationHeaders(String annotationFile) throws IOException {
-        if (StringUtils.isBlank(annotationFile) || !new File(annotationFile).exists()) {
-            exitError("Annotation file not found: " + annotationFile);
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(annotationFile))) {
-            String line = reader.readLine();
-
-            if (StringUtils.isBlank(line))
-                exitError("Annotation file - missing header row");
-
-            return line.split("\t");
-        }
     }
 
     private void plotCoverage(String[] bams, String cmapReference, String cmapQuery, String xmap, ImageFormat imageFormat, CommandLine cmd) throws Exception {

@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: cz.vsb.genetics.coverage.main.LoReCCoverage
+Main-Class: cz.vsb.genetics.lorec.coverage.LoReCCoverage
 

@@ -17,7 +17,7 @@
  */
 
 
-package cz.vsb.genetics.coverage.main;
+package cz.vsb.genetics.lorec.coverage;
 
 public enum SamplingType {
     NONE,

@@ -17,26 +17,34 @@
  */
 
 
-package cz.vsb.genetics.coverage.main;
+package cz.vsb.genetics.lorec.coverage;
 
-public enum PlotType {
-    HISTOGRAM,
-    LINE,
-    SPLINE,
+import java.util.HashMap;
+import java.util.Map;
 
+public enum ImageFormat {
+    JPG("jpg"),
+    PNG("png"),
+    PDF("pdf"),
+    SVG("svg"),
     ;
 
-    public static PlotType of(String value) {
-        if (value == null)
-            return HISTOGRAM;
+    public final String value;
 
-        value = value.trim().toLowerCase();
+    private static final Map<String, ImageFormat> map = new HashMap<>();
 
-        switch (value) {
-            case "histogram" : return HISTOGRAM;
-            case "line" : return LINE;
-            case "spline" : return SPLINE;
-            default: return HISTOGRAM;
-        }
+    static {
+        for (ImageFormat item : ImageFormat.values())
+            map.put(item.value, item);
+    }
+
+    ImageFormat(String value) {
+        this.value = value;
+    }
+
+    public static ImageFormat of(String value) {
+        ImageFormat format = map.get(value);
+
+        return format == null ? PNG : format;
     }
 }

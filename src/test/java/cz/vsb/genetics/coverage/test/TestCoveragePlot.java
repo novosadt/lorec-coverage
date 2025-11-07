@@ -22,7 +22,7 @@ package cz.vsb.genetics.coverage.test;
 import cz.vsb.genetics.common.Chromosome;
 import cz.vsb.genetics.coverage.CoverageCalculator;
 import cz.vsb.genetics.coverage.CoverageInfo;
-import cz.vsb.genetics.coverage.main.*;
+import cz.vsb.genetics.lorec.coverage.*;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorMT;
 import cz.vsb.genetics.ngs.coverage.BamCoverageCalculatorST;
 import cz.vsb.genetics.om.coverage.BionanoCoverageCalculator;

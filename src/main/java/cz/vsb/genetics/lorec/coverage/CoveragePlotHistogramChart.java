@@ -17,34 +17,18 @@
  */
 
 
-package cz.vsb.genetics.coverage.main;
+package cz.vsb.genetics.lorec.coverage;
 
-import java.util.HashMap;
-import java.util.Map;
+import cz.vsb.genetics.coverage.CoverageInfo;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 
-public enum ImageFormat {
-    JPG("jpg"),
-    PNG("png"),
-    PDF("pdf"),
-    SVG("svg"),
-    ;
+import java.util.List;
 
-    public final String value;
-
-    private static final Map<String, ImageFormat> map = new HashMap<>();
-
-    static {
-        for (ImageFormat item : ImageFormat.values())
-            map.put(item.value, item);
-    }
-
-    ImageFormat(String value) {
-        this.value = value;
-    }
-
-    public static ImageFormat of(String value) {
-        ImageFormat format = map.get(value);
-
-        return format == null ? PNG : format;
+public class CoveragePlotHistogramChart extends CoveragePlotBase {
+    protected JFreeChart createChart(String title, String xLabel, String yLabel, SamplingType samplingType, List<CoverageInfo> coverageInfos) {
+        return ChartFactory.createHistogram(title, xLabel, yLabel, createDataset(coverageInfos, samplingType),
+                PlotOrientation.VERTICAL, true, true, false);
     }
 }
